@@ -9,7 +9,8 @@ Folders attached are
 ## Customise
 This project runs on localhost, you will have to change some configurations for it to work for you.
 ### Steps 
-init.php file
+Access the init.php file in the includes folder.
+
 Type your postgresql database name
 ``` php
 $dsn = "pgsql:host=localhost;dbname=******;port=5432";
