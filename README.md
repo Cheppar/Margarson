@@ -21,7 +21,7 @@ $pdo = new PDO($dsn, 'postgres', '*********', $opt);
 Edit root directory yours.
 ``` php
  $root_directory = "******";
-    $from_email = "admin@che.com";
-    $reply_email = "admin@che.com";
-    include "php_functions.php";
+ $from_email = "admin@che.com";
+ $reply_email = "admin@che.com";
+ include "php_functions.php";
  ```
