@@ -11,6 +11,10 @@ This project runs on localhost, you will have to change some configurations for 
 ### Steps 
 init.php file
 ``` php
+Type your postgresql database name
 $dsn = "pgsql:host=localhost;dbname=******;port=5432";
+
+Add password of your postgresql database
+$pdo = new PDO($dsn, 'postgres', '*********', $opt);
 ```
  
