@@ -19,7 +19,7 @@ Add password of your postgresql database
 ``` php
 $pdo = new PDO($dsn, 'postgres', '*********', $opt);
 ```
-Edit root directory yours.
+Edit root directory to yours.
 ``` php
  $root_directory = "******";
  $from_email = "admin@che.com";
