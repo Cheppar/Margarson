@@ -10,11 +10,18 @@ Folders attached are
 This project runs on localhost, you will have to change some configurations for it to work for you.
 ### Steps 
 init.php file
-``` php
 Type your postgresql database name
+``` php
 $dsn = "pgsql:host=localhost;dbname=******;port=5432";
-
+```
 Add password of your postgresql database
+``` php
 $pdo = new PDO($dsn, 'postgres', '*********', $opt);
 ```
- 
+Edit root directory yours.
+``` php
+ $root_directory = "******";
+    $from_email = "admin@che.com";
+    $reply_email = "admin@che.com";
+    include "php_functions.php";
+ ```
