@@ -26,3 +26,7 @@ Edit root directory to yours.
  $reply_email = "admin@che.com";
  include "php_functions.php";
  ```
+Run the SQL script in your PostgreSQL interface of your desired database. Ensure to unzip the folder.
+Check your database by refreshing it.
+
+
