@@ -9,4 +9,5 @@ Folders attached are
 ## Customise
 This project runs on localhost, you will have to change some configurations for it to work for you.
 ### Steps 
+#### init.php file
  
