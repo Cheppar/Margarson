@@ -149,7 +149,7 @@
 
                 //  ********* Map Initialization ****************
 
-                mymap = L.map('mapdiv', {center:[52.43, -1.45], zoom:10, attributionControl:false});
+                mymap = L.map('mapdiv', {center:[52.43, -1.45], zoom:7, attributionControl:false});
 
                 ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
 
@@ -182,9 +182,7 @@
 //******* loading our database **********
                // refreshEagles();
                refreshLinears();
-               refreshEagles();
-               refreshPagles();
-               refreshBagles();
+
 
 
                 // ********* Setup Layer Control  ***************
@@ -211,14 +209,14 @@
 
             function processClientLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
+             lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4> District Postcode: "+att.pc_name+"<br> <a href=''>SeeK</a>").addTo(mymap);
              arProjectIDs.push(att.layer.toString());
 
             }
 
              function refreshLinears() {
                 $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'merged', flds:"id"},
+                    data: {tbl:'boundary', flds:"id, pc_name, layer, eer13nm"},
                     type: 'GET',
                     success: function(response){
                         arProjectIDs=[];
@@ -229,8 +227,8 @@
                             lyrClientLinesBuffer.remove();
                         }
                         lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLinears, {color:'navy', dashArray:"5,6", fillOpacity:0 , opacity:0.1, onEachFeature:processClientLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Linear Projects");
+                        lyrClientLines = L.geoJSON(jsnLinears, {color:'navy', dashArray:"5,5", fillOpacity:0 , opacity:0.5, onEachFeature:processClientLinears}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "Boundary");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -246,112 +244,12 @@
 
 
 
-            function returnEagleMarker(json, latlng){
-                var att = json.properties;
-                if (att.field_2=='live') {
-                    var clrNest = 'deeppink';
-                } else {
-                    var clrNest = 'black';
-                }
-
-                arEagleIDs.push(att.field_2.toString());
-                return L.circle(latlng, {radius:2, color:clrNest,fillColor:'chartreuse', fillOpacity:0.5});
-            }
-
-            function processPcodemarker(json,lyr){
-                var att = json.properties;
-                lyr.bindTooltip("<h4>Post Code: "+att.field_1+"</h4>").openPopup();
-            }
-            function processBaglemarker(json,lyr){
-                var att = json.properties;
-                lyr.bindTooltip("<h4>Post Code: "+att.field_1+"</h4>").openPopup();
-            }
-
-            function filterEagle(json) {
-                var att=json.properties;
-                var optFilter = $("input[name=fltEagle]:checked").val();
-                if (optFilter=='ALL') {
-                    return true;
-                } else {
-                    return (att.status==optFilter);
-                }
-            }
-
-             function refreshEagles(){
-                $.ajax({url:'load_pcode.php',
-                    data: {tbl:'bristolbs', flds:"id, field_2"},
-                    type: 'GET',
-                    success: function(response){
-                        arEagleIDs=[];
-                        jsnEagles = JSON.parse(response);
-                        if(lyrEagleNests){
-                            ctlLayers.removeLayer(lyrEagleNests);
-                            ctlLayers.removeLayer(lyrMarkerCluster);
-                            lyrEagleNests.remove();
-                        }
-                        lyrEagleNests = L.geoJSON(jsnEagles,
-                        { onEachFeature:processPcodemarker, pointToLayer:returnEagleMarker, filter:filterEagle});
-
-                    arEagleIDs.sort(function(a,b){return a-b});
-                    $("#txtFindEagle").autocomplete({
-                        source:arEagleIDs
-                    });
-                    lyrMarkerCluster = L.markerClusterGroup();
-                        lyrMarkerCluster.clearLayers();
-                        lyrMarkerCluster.addLayer(lyrEagleNests);
-                        lyrMarkerCluster.addTo(mymap);
-                        ctlLayers.addOverlay(lyrMarkerCluster, "Post codes");
-                    },
-                    error: function(xhr, status, error){
-                        alert("ERROR: "+error);
-                    }
-                });
-            }
-
-             function refreshPagles(){
-                $.ajax({url:'load_pcode.php',
-                    data: {tbl:'aberdeenab', flds:'field_2'},
-                    type: 'GET',
-                    success: function(response){
-                        arEagleIDs=[];
-                        jsnPagles = JSON.parse(response);
-                        if(lyrPagleNests){
-                            ctlLayers.removeLayer(lyrPaglesNests);
-                            ctlLayers.removeLayer(lyrMarkerCluster);
-                            lyrPagleNests.remove();
-                        }
-                        lyrPagleNests = L.geoJSON(jsnPagles,
-                        { onEachFeature:processPcodemarker, pointToLayer:returnEagleMarker, filter:filterEagle});
-                    ctlLayers.addOverlay(lyrPagleNests, "Post Codes");
-                    arEagleIDs.sort(function(a,b){return a-b});
-                    $("#txtFindEagle").autocomplete({
-                        source:arEagleIDs
-                    });
-                    lyrMarkerCluster = L.markerClusterGroup();
-                        lyrMarkerCluster.clearLayers();
-                        lyrMarkerCluster.addLayer(lyrPagleNests);
-                        lyrMarkerCluster.addTo(mymap);
-                        ctlLayers.addOverlay(lyrMarkerCluster, "BOLTON");
-                    },
-                    error: function(xhr, status, error){
-                        alert("ERROR: "+error);
-                    }
-                });
-            }
-
-
-
-
-
             //  ***********  General Functions *********
 
 
                 $("btnLocate").click(function(){
                     mymap.locate();
                 });
-
-
-
 
             //  ***********  General Functions *********
 
