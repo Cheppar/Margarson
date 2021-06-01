@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Crewe CW</title>
+        <title>Croydon CR</title>
         <link rel="stylesheet" href="src/leaflet.css">
         <link rel="stylesheet" href="src/css/bootstrap.css">
         <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css">
@@ -149,10 +149,10 @@
 
                 //  ********* Map Initialization ****************
 
-                mymap = L.map('mapdiv', {center:[53.10, -2.44], zoom:9, attributionControl:false});
+                mymap = L.map('mapdiv', {center:[51.38, -0.11], zoom:9, attributionControl:false});
 
                 mymap.options.minZoom = 9;
-                mymap.options.maxZoom = 21;
+                mymap.options.maxZoom = 19;
 
                 ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
 
@@ -273,7 +273,7 @@
 
              function refreshEagles(){
                 $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'crewecw' , flds:'field_1, field_2, field_3, field_4, field_5'},
+                    data: {tbl:'croydoncr' , flds:'field_1, field_2, field_3, field_4, field_5'},
                     type: 'GET',
                     success: function(response){
                         arEagleIDs=[];
