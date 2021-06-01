@@ -31,7 +31,7 @@ Edit root directory to yours.
 #### SQL 
 Ensure to download PostGIS extension
 
-```php
+```sql
 CREATE EXTENSION postgis;
 ```
 Run the SQL script in your PostgreSQL interface of your desired database. 
