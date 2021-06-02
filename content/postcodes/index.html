@@ -180,8 +180,10 @@
                 fgpDrawnItems.addTo(mymap);
 
 //******* loading our database **********
-               refreshPagles();
+               refreshWales();
                refreshLinears();
+               refreshGb();
+               refreshNireland();
 
 
 
@@ -223,11 +225,11 @@
                         jsnLinears = JSON.parse(response);
                         if (lyrClientLines) {
                             ctlLayers.removeLayer(lyrClientLines);
-                            lyrClientLines.remove();
+                            // lyrClientLines.remove();
                             lyrClientLinesBuffer.remove();
                         }
                         lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLinears, {color:'black', dashArray:"5,5", fillOpacity:0 , opacity:0.4, onEachFeature:processClientLinears}).addTo(mymap);
+                        lyrClientLines = L.geoJSON(jsnLinears, {color:'black', dashArray:"5,5", fillOpacity:0.3 , opacity:0.4, onEachFeature:processClientLinears}).addTo(mymap);
                         ctlLayers.addOverlay(lyrClientLines, "Boundary");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
@@ -241,28 +243,28 @@
                 });
             }
             // *********  Wales Boundary Functions *****************
-            function processClientLinears(json, lyr) {
+            function processWalesLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4> District Postcode: "+att.eer13nm+"<br> <a href='aberdeen.php'>Aberdeen AB</a> <br> <a href='edinburgh.php'>Edinburgh EH</a> <br> <a href='glasgow.php'>Glasgow  G</a>  <br> <a href='inverness.php'>Inverness IV</a> <br> <a href='dundee.php'>Dundee DD</a> <br> <a href='falkirk.php'>Falkirk FK</a> <br> <a href='dumfriesandgalloway.php'>Dumfries & Galloway DG</a> ").addTo(mymap);
+             lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4> District Postcode: "+att.eer13nm+"<br> <a href='cardiff.php'>Cardiff CF</a> <br> ").addTo(mymap);
              arProjectIDs.push(att.eer13nm.toString());
 
             }
 
              function refreshWales() {
                 $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'bou_scotland', flds:"id, ee13nm"},
+                    data: {tbl:'bou_wales', flds:"id, ee13nm"},
                     type: 'GET',
                     success: function(response){
                         arProjectIDs=[];
-                        jsnLinears = JSON.parse(response);
+                        jsnWlinears = JSON.parse(response);
                         if (lyrClientLines) {
                             ctlLayers.removeLayer(lyrClientLines);
-                            lyrClientLines.remove();
+                            // lyrClientLines.remove();
                             lyrClientLinesBuffer.remove();
                         }
                         lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLinears, {color:'black', dashArray:"5,5", fillOpacity:0 , opacity:0.4, onEachFeature:processClientLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Boundary");
+                        lyrClientLines = L.geoJSON(jsnWlinears, {color:'blue', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processWalesLinears}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "Wales Boundary");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -274,7 +276,80 @@
                     }
                 });
             }
+            // *********  End of Wales Boundary Functions *****************
 
+            //****************** Great Britain ********************//
+            function processGbLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4> District Postcode: "+att.eer13nm+"<br> <a href='#'>Cardiff CF</a> <br> ").addTo(mymap);
+             arProjectIDs.push(att.eer13nm.toString());
+
+            }
+
+             function refreshGb() {
+                $.ajax({url:'load_allpostcodes.php',
+                    data: {tbl:'bou_england', flds:"id, ee13nm"},
+                    type: 'GET',
+                    success: function(response){
+                        arProjectIDs=[];
+                        jsnGblinears = JSON.parse(response);
+                        if (lyrClientLines) {
+                            ctlLayers.removeLayer(lyrClientLines);
+                            // lyrClientLines.remove();
+                            lyrClientLinesBuffer.remove();
+                        }
+                        lyrClientLinesBuffer = L.featureGroup();
+                        lyrClientLines = L.geoJSON(jsnGblinears, {color:'red', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processGbLinears}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "England Boundary");
+                        arProjectIDs.sort(function(a,b){return a-b});
+                        $("#txtFindEagle").autocomplete({
+                            source:arProjectIDs
+                        });
+
+                    },
+                    error: function(xhr, status, error){
+                       alert("ERROR: "+error);
+                    }
+                });
+            }
+            //****************** End of Great Britain ********************//
+            function processNiLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Boundary: "+att.pc_name+"</h4> District Postcode: "+att.pc_name+"<br> <a href='#'>Cardiff CF</a> <br> ").addTo(mymap);
+             arProjectIDs.push(att.pc_name.toString());
+
+            }
+
+             function refreshNireland() {
+                $.ajax({url:'load_allpostcodes.php',
+                    data: {tbl:'bou_northireland', flds:"id, pc_name"},
+                    type: 'GET',
+                    success: function(response){
+                        arProjectIDs=[];
+                        jsnNilinears = JSON.parse(response);
+                        if (lyrClientLines) {
+                            ctlLayers.removeLayer(lyrClientLines);
+                            // lyrClientLines.remove();
+                            lyrClientLinesBuffer.remove();
+                        }
+                        lyrClientLinesBuffer = L.featureGroup();
+                        lyrClientLines = L.geoJSON(jsnNilinears, {color:'green', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processNiLinears}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+                        arProjectIDs.sort(function(a,b){return a-b});
+                        $("#txtFindEagle").autocomplete({
+                            source:arProjectIDs
+                        });
+
+                    },
+                    error: function(xhr, status, error){
+                       alert("ERROR: "+error);
+                    }
+                });
+            }
+            //****************** Start of Northern Ireland ********************//
+
+
+            //****************** End of Northern Ireland ********************//
 
             //  ***********  General Functions *********
 
