@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<title>harrowgate HG</title>
+		<title>Harrowgate HG</title>
 		<link rel="stylesheet" href="src/leaflet.css" />
 		<link rel="stylesheet" href="src/css/bootstrap.css" />
 		<link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css" />
@@ -352,8 +352,8 @@
 
 				function refreshEagles() {
 					$.ajax({
-						url: 'load_pcode.php',
-						data: { tbl: '', flds: 'id, field_2' },
+						url: 'load_allpostcodes.php',
+						data: { tbl:'harrogatehg', flds: 'id, field_1, field_2, field_3, field_4, field_5' },
 						type: 'GET',
 						success: function (response) {
 							arEagleIDs = [];
