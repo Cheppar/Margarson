@@ -1,3 +1,6 @@
+<?php
+echo "";
+ ?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -202,7 +205,7 @@
                 //  ********* Map Initialization ****************
 
                 mymap = L.map('mapdiv', {
-                    center: [57.47, -4.22],
+                    center: [57.50, -4.20],
                     zoom: 9,
                     attributionControl: false,
                 });
@@ -219,7 +222,7 @@
                 ctlAttribute = L.control.attribution().addTo(mymap);
                 ctlAttribute.addAttribution('OSM');
                 ctlAttribute.addAttribution(
-                    '&copy; <a href="http://nakuplan.com">Godfrey Ejiofor</a>'
+                    '&copy; <a href="#">Margarson</a>'
                 );
 
                 ctlScale = L.control

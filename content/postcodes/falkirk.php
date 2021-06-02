@@ -1,8 +1,11 @@
+<?php
+echo"";
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>UK Boundaries</title>
+        <title>Falkirk FK</title>
         <link rel="stylesheet" href="src/leaflet.css">
         <link rel="stylesheet" href="src/css/bootstrap.css">
         <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css">
@@ -148,8 +151,13 @@
             $(document).ready(function(){
 
                 //  ********* Map Initialization ****************
+                mymap = L.map('mapdiv',
+                    {center:[56.02, -3.80],
+                     zoom:9,
+                     attributionControl:false});
 
-                mymap = L.map('mapdiv', {center:[52.43, -1.45], zoom:5, attributionControl:false});
+                mymap.options.minZoom = 9;
+                mymap.options.maxZoom = 22;
 
                 ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
 
@@ -170,29 +178,22 @@
                 //   *********** Layer Initialization **********
 
                 lyrOSM = L.tileLayer.provider('OpenStreetMap.Mapnik');
-                lyrTopo = L.tileLayer.provider('OpenTopoMap');
                 lyrImagery = L.tileLayer.provider('Esri.WorldImagery');
-                lyrOutdoors = L.tileLayer.provider('Thunderforest.Outdoors');
-                lyrWatercolor = L.tileLayer.provider('Stamen.Watercolor');
                 mymap.addLayer(lyrOSM);
 
                 fgpDrawnItems = new L.FeatureGroup();
                 fgpDrawnItems.addTo(mymap);
 
-//******* loading our database **********
-               refreshPagles();
+            //******* loading our database **********
                refreshLinears();
-
-
+               refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
                 objBasemaps = {
                     "Open Street Maps": lyrOSM,
-                    "Topo Map":lyrTopo,
                     "Imagery":lyrImagery,
-                    "Outdoors":lyrOutdoors,
-                    "Watercolor":lyrWatercolor
+
                 };
 
                 objOverlays = {
@@ -209,71 +210,144 @@
 
             function processClientLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4> District Postcode: "+att.eer13nm+"<br> <a href='aberdeen.php'>Aberdeen AB</a> <br> <a href='edinburgh.php'>Edinburgh EH</a> <br> <a href='glasgow.php'>Glasgow  G</a>  <br> <a href='inverness.php'>Inverness IV</a> <br> <a href='dundee.php'>Dundee DD</a> <br> <a href='falkirk.php'>Falkirk FK</a> <br> <a href='dumfriesandgalloway.php'>Dumfries & Galloway DG</a> ").addTo(mymap);
-             arProjectIDs.push(att.eer13nm.toString());
+             lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
+             arProjectIDs.push(att.layer.toString());
 
             }
 
-             function refreshLinears() {
-                $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'bou_scotland', flds:"id, ee13nm"},
-                    type: 'GET',
-                    success: function(response){
-                        arProjectIDs=[];
-                        jsnLinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
-                        }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLinears, {color:'black', dashArray:"5,5", fillOpacity:0 , opacity:0.4, onEachFeature:processClientLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Boundary");
-                        arProjectIDs.sort(function(a,b){return a-b});
-                        $("#txtFindEagle").autocomplete({
-                            source:arProjectIDs
-                        });
+            function refreshLinears() {
+                    $.ajax({
+                        url: 'load_allpostcodes.php',
+                        data: { tbl: 'merged', flds: 'id' },
+                        type: 'GET',
+                        success: function (response) {
+                            arProjectIDs = [];
+                            jsnLinears = JSON.parse(response);
+                            if (lyrClientLines) {
+                                ctlLayers.removeLayer(lyrClientLines);
+                                lyrClientLines.remove();
+                                lyrClientLinesBuffer.remove();
+                            }
+                            lyrClientLinesBuffer = L.featureGroup();
+                            lyrClientLines = L.geoJSON(jsnLinears, {
+                                color: 'black',
+                                dashArray: '5,5',
+                                fillOpacity: 0,
+                                opacity: 0.5,
+                                onEachFeature: processClientLinears,
+                            }).addTo(mymap);
+                            ctlLayers.addOverlay(lyrClientLines, 'Boundary');
+                            arProjectIDs.sort(function (a, b) {
+                                return a - b;
+                            });
+                            $('#txtFindEagle').autocomplete({
+                                source: arProjectIDs,
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            alert('ERROR: ' + error);
+                        },
+                    });
+                }
+            // *********  Eagle Functions *****************
 
-                    },
-                    error: function(xhr, status, error){
-                       alert("ERROR: "+error);
-                    }
-                });
-            }
-            // *********  Wales Boundary Functions *****************
-            function processClientLinears(json, lyr) {
+
+
+            function returnEagleMarker(json, latlng){
                 var att = json.properties;
-             lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4> District Postcode: "+att.eer13nm+"<br> <a href='aberdeen.php'>Aberdeen AB</a> <br> <a href='edinburgh.php'>Edinburgh EH</a> <br> <a href='glasgow.php'>Glasgow  G</a>  <br> <a href='inverness.php'>Inverness IV</a> <br> <a href='dundee.php'>Dundee DD</a> <br> <a href='falkirk.php'>Falkirk FK</a> <br> <a href='dumfriesandgalloway.php'>Dumfries & Galloway DG</a> ").addTo(mymap);
-             arProjectIDs.push(att.eer13nm.toString());
+                if (att.field_2=='live') {
+                    var clrNest = 'deeppink';
+                } else {
+                    var clrNest = 'black';
+                }
 
+                arEagleIDs.push(att.field_2.toString());
+                return L.circle(latlng, {radius:2, color:clrNest,fillColor:'chartreuse', fillOpacity:0.5});
             }
 
-             function refreshWales() {
+            function processPcodemarker(json,lyr){
+                var att = json.properties;
+                lyr.bindTooltip("<h4>Post Code: "+att.field_1+"</h4>").openPopup();
+            }
+            function processBaglemarker(json,lyr){
+                var att = json.properties;
+                lyr.bindTooltip("<h4>Post Code: "+att.field_1+"</h4>").openPopup();
+            }
+
+            function filterEagle(json) {
+                var att=json.properties;
+                var optFilter = $("input[name=fltEagle]:checked").val();
+                if (optFilter=='ALL') {
+                    return true;
+                } else {
+                    return (att.status==optFilter);
+                }
+            }
+
+             function refreshEagles(){
                 $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'bou_scotland', flds:"id, ee13nm"},
+                    data: {tbl:'falkirk', flds:'id, field_1, field_2, field_3, field_4, field_5'},
                     type: 'GET',
                     success: function(response){
-                        arProjectIDs=[];
-                        jsnLinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
+                        arEagleIDs=[];
+                        jsnEagles = JSON.parse(response);
+                        if(lyrEagleNests){
+                            ctlLayers.removeLayer(lyrEagleNests);
+                            ctlLayers.removeLayer(lyrMarkerCluster);
+                            lyrEagleNests.remove();
                         }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLinears, {color:'black', dashArray:"5,5", fillOpacity:0 , opacity:0.4, onEachFeature:processClientLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Boundary");
-                        arProjectIDs.sort(function(a,b){return a-b});
-                        $("#txtFindEagle").autocomplete({
-                            source:arProjectIDs
-                        });
+                        lyrEagleNests = L.geoJSON(jsnEagles,
+                        { onEachFeature:processPcodemarker, pointToLayer:returnEagleMarker, filter:filterEagle});
 
+                    arEagleIDs.sort(function(a,b){return a-b});
+                    $("#txtFindEagle").autocomplete({
+                        source:arEagleIDs
+                    });
+                    lyrMarkerCluster = L.markerClusterGroup();
+                        lyrMarkerCluster.clearLayers();
+                        lyrMarkerCluster.addLayer(lyrEagleNests);
+                        lyrMarkerCluster.addTo(mymap);
+                        ctlLayers.addOverlay(lyrMarkerCluster, "Post codes");
                     },
                     error: function(xhr, status, error){
-                       alert("ERROR: "+error);
+                        alert("ERROR: "+error);
                     }
                 });
             }
+
+             function refreshPagles(){
+                $.ajax({url:'load_pcode.php',
+                    data: {tbl:'aberdeenab', flds:'field_2'},
+                    type: 'GET',
+                    success: function(response){
+                        arEagleIDs=[];
+                        jsnPagles = JSON.parse(response);
+                        if(lyrPagleNests){
+                            ctlLayers.removeLayer(lyrPaglesNests);
+                            ctlLayers.removeLayer(lyrMarkerCluster);
+                            lyrPagleNests.remove();
+                        }
+                        lyrPagleNests = L.geoJSON(jsnPagles,
+                        { onEachFeature:processPcodemarker, pointToLayer:returnEagleMarker, filter:filterEagle});
+                    ctlLayers.addOverlay(lyrPagleNests, "Post Codes");
+                    arEagleIDs.sort(function(a,b){return a-b});
+                    $("#txtFindEagle").autocomplete({
+                        source:arEagleIDs
+                    });
+                    lyrMarkerCluster = L.markerClusterGroup();
+                        lyrMarkerCluster.clearLayers();
+                        lyrMarkerCluster.addLayer(lyrPagleNests);
+                        lyrMarkerCluster.addTo(mymap);
+                        ctlLayers.addOverlay(lyrMarkerCluster, "BOLTON");
+                    },
+                    error: function(xhr, status, error){
+                        alert("ERROR: "+error);
+                    }
+                });
+            }
+
+
+
 
 
             //  ***********  General Functions *********
@@ -282,6 +356,9 @@
                 $("btnLocate").click(function(){
                     mymap.locate();
                 });
+
+
+
 
             //  ***********  General Functions *********
 
