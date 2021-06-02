@@ -39,3 +39,15 @@ Ensure to unzip the folder.
 Check your database by refreshing it.
 Probable errors are 500 -  to signify a missing database.
 
+### Accessing your file 
+- Access file via URL.
+ ```php
+localhost:8080/postcodes/content/index.html
+```
+OR 
+- When you open localhost, there is a start-page that has a URL. Edit as shown below.
+
+ ```php
+localhost:8080/*****/*****/*****
+```
+
