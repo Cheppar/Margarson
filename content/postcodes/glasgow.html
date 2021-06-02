@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<title>glasgow G</title>
+		<title>Glasgow G</title>
 		<link rel="stylesheet" href="src/leaflet.css" />
 		<link rel="stylesheet" href="src/css/bootstrap.css" />
 		<link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css" />
@@ -207,6 +207,9 @@
 					attributionControl: false,
 				});
 
+				mymap.options.minZoom = 9;
+                mymap.options.maxZoom = 19;
+
 				ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
 
 				ctlEasybutton = L.easyButton('glyphicon-transfer', function () {
@@ -240,7 +243,7 @@
 				fgpDrawnItems.addTo(mymap);
 
 				//******* loading our database **********
-				// refreshEagles();
+				refreshLinears();
 
 				refreshEagles();
 
@@ -289,13 +292,13 @@
 							}
 							lyrClientLinesBuffer = L.featureGroup();
 							lyrClientLines = L.geoJSON(jsnLinears, {
-								color: 'navy',
-								dashArray: '5,6',
+								color: 'black',
+								dashArray: '5,5',
 								fillOpacity: 0,
-								opacity: 0.1,
+								opacity: 0.5,
 								onEachFeature: processClientLinears,
 							}).addTo(mymap);
-							ctlLayers.addOverlay(lyrClientLines, 'Linear Projects');
+							ctlLayers.addOverlay(lyrClientLines, 'Boundary');
 							arProjectIDs.sort(function (a, b) {
 								return a - b;
 							});
@@ -352,8 +355,8 @@
 
 				function refreshEagles() {
 					$.ajax({
-						url: 'load_pcode.php',
-						data: { tbl: '', flds: 'id, field_2' },
+						url: 'load_allpostcodes.php',
+						data: { tbl:'glasgow', flds: 'id, field_1, field_2, field_3, field_4, field_5' },
 						type: 'GET',
 						success: function (response) {
 							arEagleIDs = [];
