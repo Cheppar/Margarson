@@ -29,15 +29,14 @@ Edit root directory to yours.
  include "php_functions.php";
  ```
 #### SQL 
-Ensure to download PostGIS extension
+Ensure to execute the PostGIS extension
 
 ```sql
 CREATE EXTENSION postgis;
 ```
-Run the SQL script in your PostgreSQL interface of your desired database. 
-Ensure to unzip the folder.
+1.Run the SQL script in your PostgreSQL interface of your desired database. 
 Check your database by refreshing it.
-Probable errors are 500 -  to signify a missing database.
+
 
 ### Accessing your file 
 - Access file via URL.
