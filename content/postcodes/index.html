@@ -182,7 +182,7 @@
 //******* loading our database **********
                refreshWales();
                refreshLinears();
-               //refreshGb();
+               refreshNortheast();
                refreshNireland();
                refreshYorkshireBoundary();
 
@@ -347,30 +347,28 @@
                     }
                 });
             }
-            //****************** Start Yorkshire England ********************//
 
-                function processNortheastBoundary(json, lyr) {
-                    var att = json.properties;
-                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bradford.php'>Bradford BD</a> <br> <a href='darlington.php'>Darlington DL</a> <br> <a href='doncaster.php'>Doncaster DN</a> <br> <a href='huddersfield.php'>Huddersfield HD</a> <br> <a href='harrogate.php'>Harrogate HG</a> <br> <a href='hull.php'>HULL HU *</a> <br><a href='halifax.php'>Halifax HX</a> <br> ").addTo(mymap);
-                 arProjectIDs.push(att.name.toString());
+            //****************** Start North East ********************//
+function processNeLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>District: "+att.name+"</h4><br> <a href='durham.php'>Durham DH</a><br><a href='darlington.php'>Darlington DL</a> ").addTo(mymap);
+             arProjectIDs.push(att.id.toString());
+            }
 
-                }
-
-             function refreshYorkshireBoundary() {
+             function refreshNortheast() {
                 $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'yorkshirehumberbou', flds:"id"},
+                    data: {tbl:'northeast_boundary', flds:"name"},
                     type: 'GET',
                     success: function(response){
                         arProjectIDs=[];
-                        jsnNeastlinears = JSON.parse(response);
+                        jsnNelinears = JSON.parse(response);
                         if (lyrClientLines) {
                             ctlLayers.removeLayer(lyrClientLines);
-                            // lyrClientLines.remove();
                             lyrClientLinesBuffer.remove();
                         }
                         lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnNeastlinears, {color:'green', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processNortheastBoundary}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+                        lyrClientLines = L.geoJSON(jsnNelinears, {color:'red', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processNeLinears}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "Northern East Boundary");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -383,12 +381,11 @@
                 });
             }
 
-            //****************** End of Northern Ireland ********************//
 
-
+            //****************** Start Yorkshire England ********************//
             function processYorkshireBoundary(json, lyr) {
                     var att = json.properties;
-                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bradford.php'>Bradford BD</a> <br> <a href='darlington.php'>Darlington DL</a> <br> <a href='doncaster.php'>Doncaster DN</a> <br> <a href='huddersfield.php'>Huddersfield HD</a> <br> <a href='harrogate.php'>Harrogate HG</a> <br> <a href='hull.php'>HULL HU *</a> <br><a href='halifax.php'>Halifax HX</a> <br> ").addTo(mymap);
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bradford.php'>Bradford BD</a><br><a href='doncaster.php'>Doncaster DN</a><a href='darlington.php'>Darlington DL</a> <br> <a href='huddersfield.php'>Huddersfield HD</a> <br> <a href='harrogate.php'>Harrogate HG</a> <br> <a href='hull.php'>HULL HU *</a> <br><a href='halifax.php'>Halifax HX</a> <br> ").addTo(mymap);
                  arProjectIDs.push(att.name.toString());
 
                 }
@@ -399,14 +396,14 @@
                     type: 'GET',
                     success: function(response){
                         arProjectIDs=[];
-                        jsnNeastlinears = JSON.parse(response);
+                        jsnYorkshirelinears = JSON.parse(response);
                         if (lyrClientLines) {
                             ctlLayers.removeLayer(lyrClientLines);
                             // lyrClientLines.remove();
                             lyrClientLinesBuffer.remove();
                         }
                         lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnNeastlinears, {color:'green', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processYorkshireBoundary}).addTo(mymap);
+                        lyrClientLines = L.geoJSON(jsnYorkshirelinears, {color:'green', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processYorkshireBoundary}).addTo(mymap);
                         ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
@@ -419,6 +416,8 @@
                     }
                 });
             }
+
+            //****************** Start NorthWest England ********************//
 
 
             //  ***********  General Functions *********
