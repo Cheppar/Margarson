@@ -1,9 +1,11 @@
-
+<?php
+echo"";
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Birmingham B</title>
+        <title>Darlington DL</title>
         <link rel="stylesheet" href="src/leaflet.css">
         <link rel="stylesheet" href="src/css/bootstrap.css">
         <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css">
@@ -149,8 +151,13 @@
             $(document).ready(function(){
 
                 //  ********* Map Initialization ****************
+                mymap = L.map('mapdiv',
+                    {center:[54.52, -1.55],
+                     zoom:9,
+                     attributionControl:false});
 
-                mymap = L.map('mapdiv', {center:[52.49, -1.89], zoom:9, attributionControl:false});
+                mymap.options.minZoom = 9;
+                mymap.options.maxZoom = 22;
 
                 ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
 
@@ -160,7 +167,7 @@
 
                 ctlAttribute = L.control.attribution().addTo(mymap);
                 ctlAttribute.addAttribution('OSM');
-                ctlAttribute.addAttribution('&copy; <a href="http://nakuplan.com">Godfrey Ejiofor</a>');
+                ctlAttribute.addAttribution('&copy; <a href="#">Margarson</a>');
 
                 ctlScale = L.control.scale({position:'bottomleft', metric:false, maxWidth:200}).addTo(mymap);
 
@@ -171,28 +178,22 @@
                 //   *********** Layer Initialization **********
 
                 lyrOSM = L.tileLayer.provider('OpenStreetMap.Mapnik');
-                lyrTopo = L.tileLayer.provider('OpenTopoMap');
                 lyrImagery = L.tileLayer.provider('Esri.WorldImagery');
-                lyrOutdoors = L.tileLayer.provider('Thunderforest.Outdoors');
-                lyrWatercolor = L.tileLayer.provider('Stamen.Watercolor');
                 mymap.addLayer(lyrOSM);
 
                 fgpDrawnItems = new L.FeatureGroup();
                 fgpDrawnItems.addTo(mymap);
 
-//******* loading our database **********
-               // refreshEagles();
-
+            //******* loading our database **********
+               refreshLinears();
                refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
                 objBasemaps = {
                     "Open Street Maps": lyrOSM,
-                    "Topo Map":lyrTopo,
                     "Imagery":lyrImagery,
-                    "Outdoors":lyrOutdoors,
-                    "Watercolor":lyrWatercolor
+
                 };
 
                 objOverlays = {
@@ -214,32 +215,40 @@
 
             }
 
-             function refreshLinears() {
-                $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'albansal', flds:"field_1, field_2, field_3, field_4, field_5"},
-                    type: 'GET',
-                    success: function(response){
-                        arProjectIDs=[];
-                        jsnLinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
-                        }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLinears, {color:'navy', dashArray:"5,6", fillOpacity:0 , opacity:0.1, onEachFeature:processClientLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Linear Projects");
-                        arProjectIDs.sort(function(a,b){return a-b});
-                        $("#txtFindEagle").autocomplete({
-                            source:arProjectIDs
-                        });
-
-                    },
-                    error: function(xhr, status, error){
-                       alert("ERROR: "+error);
-                    }
-                });
-            }
+            function refreshLinears() {
+                    $.ajax({
+                        url: 'load_allpostcodes.php',
+                        data: { tbl: 'merged', flds: 'id' },
+                        type: 'GET',
+                        success: function (response) {
+                            arProjectIDs = [];
+                            jsnLinears = JSON.parse(response);
+                            if (lyrClientLines) {
+                                ctlLayers.removeLayer(lyrClientLines);
+                                lyrClientLines.remove();
+                                lyrClientLinesBuffer.remove();
+                            }
+                            lyrClientLinesBuffer = L.featureGroup();
+                            lyrClientLines = L.geoJSON(jsnLinears, {
+                                color: 'black',
+                                dashArray: '5,5',
+                                fillOpacity: 0,
+                                opacity: 0.5,
+                                onEachFeature: processClientLinears,
+                            }).addTo(mymap);
+                            ctlLayers.addOverlay(lyrClientLines, 'Boundary');
+                            arProjectIDs.sort(function (a, b) {
+                                return a - b;
+                            });
+                            $('#txtFindEagle').autocomplete({
+                                source: arProjectIDs,
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            alert('ERROR: ' + error);
+                        },
+                    });
+                }
             // *********  Eagle Functions *****************
 
 
@@ -258,7 +267,7 @@
 
             function processPcodemarker(json,lyr){
                 var att = json.properties;
-                lyr.bindTooltip("<h4>Post Code: "+att.field_1+"</h4> Status : "+att.field_2+" <br> Type : "+att.field_3).openPopup();
+                lyr.bindTooltip("<h4>Post Code: "+att.field_1+"</h4>").openPopup();
             }
             function processBaglemarker(json,lyr){
                 var att = json.properties;
@@ -277,7 +286,7 @@
 
              function refreshEagles(){
                 $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'birmingham', flds:'field_1, field_2, field_3, field_4, field_5'},
+                    data: {tbl:'darlington', flds:'id, field_1, field_2, field_3, field_4, field_5'},
                     type: 'GET',
                     success: function(response){
                         arEagleIDs=[];
@@ -307,8 +316,8 @@
             }
 
              function refreshPagles(){
-                $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'bath', flds:'field_1, field_2, field_3, field_4, field_5'},
+                $.ajax({url:'load_pcode.php',
+                    data: {tbl:'aberdeenab', flds:'field_2'},
                     type: 'GET',
                     success: function(response){
                         arEagleIDs=[];
