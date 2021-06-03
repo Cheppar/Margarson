@@ -185,7 +185,7 @@
                refreshNortheast();
                refreshNireland();
                refreshYorkshireBoundary();
-
+               refreshNorthwest();
 
 
                 // ********* Setup Layer Control  ***************
@@ -380,7 +380,39 @@ function processNeLinears(json, lyr) {
                     }
                 });
             }
+            ////************** start north west boundary ************//
 
+            function processNwLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>District: "+att.name+"</h4><a href='blackpool.php'>Blackpool BL</a><br><a href='blackburn.php'>Blackburn BB</a><br><a href='carlisle.php'>Carlisle CA</a><br><a href='crewe.php'>Crewe CW</a><br><a href='blackpoolfy.php'>Blackpool FY</a> ").addTo(mymap);
+             arProjectIDs.push(att.id.toString());
+            }
+
+             function refreshNorthwest() {
+                $.ajax({url:'load_allpostcodes.php',
+                    data: {tbl:'northwest_bou', flds:"name"},
+                    type: 'GET',
+                    success: function(response){
+                        arProjectIDs=[];
+                        jsnNwlinears = JSON.parse(response);
+                        if (lyrClientLines) {
+                            ctlLayers.removeLayer(lyrClientLines);
+                            lyrClientLinesBuffer.remove();
+                        }
+                        lyrClientLinesBuffer = L.featureGroup();
+                        lyrClientLines = L.geoJSON(jsnNwlinears, {color:'deeppink', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processNwLinears}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "Northern East Boundary");
+                        arProjectIDs.sort(function(a,b){return a-b});
+                        $("#txtFindEagle").autocomplete({
+                            source:arProjectIDs
+                        });
+
+                    },
+                    error: function(xhr, status, error){
+                       alert("ERROR: "+error);
+                    }
+                });
+            }
 
             //****************** Start Yorkshire England ********************//
             function processYorkshireBoundary(json, lyr) {
