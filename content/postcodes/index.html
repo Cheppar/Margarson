@@ -186,6 +186,8 @@
                refreshNireland();
                refreshYorkshireBoundary();
                refreshNorthwest();
+               refreshLondon();
+               refreshEastern();
 
 
                 // ********* Setup Layer Control  ***************
@@ -384,7 +386,7 @@ function processNeLinears(json, lyr) {
 
             function processNwLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>District: "+att.name+"</h4><a href='blackpool.php'>Blackpool BL</a><br><a href='blackburn.php'>Blackburn BB</a><br><a href='carlisle.php'>Carlisle CA</a><br><a href='crewe.php'>Crewe CW</a><br><a href='blackpoolfy.php'>Blackpool FY</a> ").addTo(mymap);
+             lyr.bindPopup("<h4>District: "+att.name+"</h4><a href='blackpool.php'>Blackpool BL *</a><br><a href='blackburn.php'>Blackburn BB</a><br><a href='carlisle.php'>Carlisle CA</a><br><a href='crewe.php'>Crewe CW *</a><br><a href='blackpoolfy.php'>Blackpool FY</a> ").addTo(mymap);
              arProjectIDs.push(att.id.toString());
             }
 
@@ -414,10 +416,76 @@ function processNeLinears(json, lyr) {
                 });
             }
 
+            //*************** London Boundary ********************//
+            function processLonLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='londonEC.php'>London EC</a><br><a href='londonE.php'>London E</a>").addTo(mymap);
+             arProjectIDs.push(att.id.toString());
+            }
+
+             function refreshLondon() {
+                $.ajax({url:'load_allpostcodes.php',
+                    data: {tbl:'london_bou', flds:"name"},
+                    type: 'GET',
+                    success: function(response){
+                        arProjectIDs=[];
+                        jsnLonlinears = JSON.parse(response);
+                        if (lyrClientLines) {
+                            ctlLayers.removeLayer(lyrClientLines);
+                            lyrClientLinesBuffer.remove();
+                        }
+                        lyrClientLinesBuffer = L.featureGroup();
+                        lyrClientLines = L.geoJSON(jsnLonlinears, {color:'brown', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processLonLinears}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "London Boundary");
+                        arProjectIDs.sort(function(a,b){return a-b});
+                        $("#txtFindEagle").autocomplete({
+                            source:arProjectIDs
+                        });
+
+                    },
+                    error: function(xhr, status, error){
+                       alert("ERROR: "+error);
+                    }
+                });
+            }
+             //****************** Eastern England ********************//
+            function processEasternLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='albans.php'>Albans AL</a><br><a href='cambridge.php'>Cambridge CB</a><br><a href='chelmsford.php'>Chelmsford CM</a><br><a href='colchester.php'>Colchester CO</a><br><a href='enfield.php'>Enfield EN</a><br><a href='harrow.php'>Harrow HA</a><br><a href='hempstead.php'>Hempstead HP</a><br>").addTo(mymap);
+             arProjectIDs.push(att.id.toString());
+            }
+
+             function refreshEastern() {
+                $.ajax({url:'load_allpostcodes.php',
+                    data: {tbl:'eastengland_bou', flds:"name"},
+                    type: 'GET',
+                    success: function(response){
+                        arProjectIDs=[];
+                        jsnEastlinears = JSON.parse(response);
+                        if (lyrClientLines) {
+                            ctlLayers.removeLayer(lyrClientLines);
+                            lyrClientLinesBuffer.remove();
+                        }
+                        lyrClientLinesBuffer = L.featureGroup();
+                        lyrClientLines = L.geoJSON(jsnEastlinears, {color:'blue', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processEasternLinears}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "London Boundary");
+                        arProjectIDs.sort(function(a,b){return a-b});
+                        $("#txtFindEagle").autocomplete({
+                            source:arProjectIDs
+                        });
+
+                    },
+                    error: function(xhr, status, error){
+                       alert("ERROR: "+error);
+                    }
+                });
+            }
+
+
             //****************** Start Yorkshire England ********************//
             function processYorkshireBoundary(json, lyr) {
                     var att = json.properties;
-                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bradford.php'>Bradford BD</a><br><a href='doncaster.php'>Doncaster DN</a><a href='darlington.php'>Darlington DL</a> <br> <a href='huddersfield.php'>Huddersfield HD</a> <br> <a href='harrogate.php'>Harrogate HG</a> <br> <a href='hull.php'>HULL HU *</a> <br><a href='halifax.php'>Halifax HX</a> <br> ").addTo(mymap);
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bradford.php'>Bradford BD</a><br><a href='darlington.php'>Darlington DL</a> <br> <a href='huddersfield.php'>Huddersfield HD</a> <br> <a href='harrogate.php'>Harrogate HG</a> <br> <a href='hull.php'>HULL HU *</a> <br><a href='halifax.php'>Halifax HX</a> <br> ").addTo(mymap);
                  arProjectIDs.push(att.name.toString());
 
                 }

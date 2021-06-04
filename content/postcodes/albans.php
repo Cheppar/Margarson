@@ -1,11 +1,8 @@
-<?php
-echo"";
-?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Darlington DL</title>
+        <title>Albans AL</title>
         <link rel="stylesheet" href="src/leaflet.css">
         <link rel="stylesheet" href="src/css/bootstrap.css">
         <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css">
@@ -151,13 +148,11 @@ echo"";
             $(document).ready(function(){
 
                 //  ********* Map Initialization ****************
-                mymap = L.map('mapdiv',
-                    {center:[54.52, -1.55],
-                     zoom:9,
-                     attributionControl:false});
+
+                mymap = L.map('mapdiv', {center:[51.7570, -0.3376], zoom:9, attributionControl:false});
 
                 mymap.options.minZoom = 9;
-                mymap.options.maxZoom = 22;
+                mymap.options.maxZoom = 19;
 
                 ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
 
@@ -167,7 +162,7 @@ echo"";
 
                 ctlAttribute = L.control.attribution().addTo(mymap);
                 ctlAttribute.addAttribution('OSM');
-                ctlAttribute.addAttribution('&copy; <a href="#">Margarson</a>');
+                ctlAttribute.addAttribution('&copy; <a href="http://nakuplan.com">Godfrey Ejiofor</a>');
 
                 ctlScale = L.control.scale({position:'bottomleft', metric:false, maxWidth:200}).addTo(mymap);
 
@@ -184,16 +179,17 @@ echo"";
                 fgpDrawnItems = new L.FeatureGroup();
                 fgpDrawnItems.addTo(mymap);
 
-            //******* loading our database **********
+//******* loading our database **********
+
+
                refreshLinears();
-               refreshEagles();
+                refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
                 objBasemaps = {
                     "Open Street Maps": lyrOSM,
                     "Imagery":lyrImagery,
-
                 };
 
                 objOverlays = {
@@ -204,7 +200,6 @@ echo"";
 
 
             // ************ Client Linears **********
-
             function processClientLinears(json, lyr) {
                 var att = json.properties;
              lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
@@ -264,7 +259,7 @@ echo"";
 
             function processPcodemarker(json,lyr){
                 var att = json.properties;
-                lyr.bindTooltip("<h4>Post Code: "+att.field_1+"</h4>").openPopup();
+                lyr.bindTooltip("<h4>Post Code: "+att.field_1+"</h4> Status : "+att.field_2+" <br> Type : "+att.field_3).openPopup();
             }
             function processBaglemarker(json,lyr){
                 var att = json.properties;
@@ -283,7 +278,7 @@ echo"";
 
              function refreshEagles(){
                 $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'darlington', flds:'id, field_1, field_2, field_3, field_4, field_5'},
+                    data: {tbl:'albansal', flds:"field_1, field_2, field_3, field_4, field_5"},
                     type: 'GET',
                     success: function(response){
                         arEagleIDs=[];

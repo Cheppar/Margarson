@@ -5,7 +5,7 @@ echo "";
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>Bradford BD</title>
+        <title>Blackpool FY</title>
         <link rel="stylesheet" href="src/leaflet.css" />
         <link rel="stylesheet" href="src/css/bootstrap.css" />
         <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css" />
@@ -205,7 +205,7 @@ echo "";
                 //  ********* Map Initialization ****************
 
                 mymap = L.map('mapdiv', {
-                    center: [54.0, -2.12],
+                    center: [53.83, -3.00],
                     zoom: 9,
                     attributionControl: false,
                 });
@@ -265,6 +265,8 @@ echo "";
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
                 // ************ Client Linears **********
+
+
             function processClientLinears(json, lyr) {
                 var att = json.properties;
              lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
@@ -351,7 +353,7 @@ echo "";
                 function refreshEagles() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl:'bradfordbd', flds:'id, field_1, field_2, field_3, field_4, field_5' },
+                        data: { tbl:'blackpoolfy', flds:'id, field_1, field_2, field_3, field_4, field_5' },
                         type: 'GET',
                         success: function (response) {
                             arEagleIDs = [];

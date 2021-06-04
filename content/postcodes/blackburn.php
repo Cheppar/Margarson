@@ -1,3 +1,7 @@
+
+<?php
+echo "";
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -151,8 +155,8 @@
 
                 mymap = L.map('mapdiv', {center:[53.75, -2.48], zoom:10, attributionControl:false});
 
-                mymap.options.minZoom = 10;
-                mymap.options.maxZoom = 21;
+                 mymap.options.minZoom = 9;
+                mymap.options.maxZoom = 22;
 
                 ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
 
@@ -162,7 +166,7 @@
 
                 ctlAttribute = L.control.attribution().addTo(mymap);
                 ctlAttribute.addAttribution('OSM');
-                ctlAttribute.addAttribution('&copy; <a href="http://nakuplan.com">Godfrey Ejiofor</a>');
+                ctlAttribute.addAttribution('&copy; <a href="#">Margarson</a>');
 
                 ctlScale = L.control.scale({position:'bottomleft', metric:false, maxWidth:200}).addTo(mymap);
 
@@ -172,29 +176,24 @@
 
                 //   *********** Layer Initialization **********
 
+
                 lyrOSM = L.tileLayer.provider('OpenStreetMap.Mapnik');
-                lyrTopo = L.tileLayer.provider('OpenTopoMap');
                 lyrImagery = L.tileLayer.provider('Esri.WorldImagery');
-                lyrOutdoors = L.tileLayer.provider('Thunderforest.Outdoors');
-                lyrWatercolor = L.tileLayer.provider('Stamen.Watercolor');
                 mymap.addLayer(lyrOSM);
 
                 fgpDrawnItems = new L.FeatureGroup();
                 fgpDrawnItems.addTo(mymap);
 
 //******* loading our database **********
-               // refreshEagles();
 
-               refreshEagles();
+                refreshLinears();
+                refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
-                objBasemaps = {
+               objBasemaps = {
                     "Open Street Maps": lyrOSM,
-                    "Topo Map":lyrTopo,
                     "Imagery":lyrImagery,
-                    "Outdoors":lyrOutdoors,
-                    "Watercolor":lyrWatercolor
                 };
 
                 objOverlays = {
@@ -205,10 +204,6 @@
 
 
             // ************ Client Linears **********
-
-
-
-
             function processClientLinears(json, lyr) {
                 var att = json.properties;
              lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
@@ -216,32 +211,40 @@
 
             }
 
-             function refreshLinears() {
-                $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'albansal', flds:"field_1, field_2, field_3, field_4, field_5"},
-                    type: 'GET',
-                    success: function(response){
-                        arProjectIDs=[];
-                        jsnLinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
-                        }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLinears, {color:'navy', dashArray:"5,6", fillOpacity:0 , opacity:0.1, onEachFeature:processClientLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Linear Projects");
-                        arProjectIDs.sort(function(a,b){return a-b});
-                        $("#txtFindEagle").autocomplete({
-                            source:arProjectIDs
-                        });
-
-                    },
-                    error: function(xhr, status, error){
-                       alert("ERROR: "+error);
-                    }
-                });
-            }
+            function refreshLinears() {
+                    $.ajax({
+                        url: 'load_allpostcodes.php',
+                        data: { tbl: 'merged', flds: 'id' },
+                        type: 'GET',
+                        success: function (response) {
+                            arProjectIDs = [];
+                            jsnLinears = JSON.parse(response);
+                            if (lyrClientLines) {
+                                ctlLayers.removeLayer(lyrClientLines);
+                                lyrClientLines.remove();
+                                lyrClientLinesBuffer.remove();
+                            }
+                            lyrClientLinesBuffer = L.featureGroup();
+                            lyrClientLines = L.geoJSON(jsnLinears, {
+                                color: 'black',
+                                dashArray: '5,5',
+                                fillOpacity: 0,
+                                opacity: 0.5,
+                                onEachFeature: processClientLinears,
+                            }).addTo(mymap);
+                            ctlLayers.addOverlay(lyrClientLines, 'Boundary');
+                            arProjectIDs.sort(function (a, b) {
+                                return a - b;
+                            });
+                            $('#txtFindEagle').autocomplete({
+                                source: arProjectIDs,
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            alert('ERROR: ' + error);
+                        },
+                    });
+                }
             // *********  Eagle Functions *****************
 
 

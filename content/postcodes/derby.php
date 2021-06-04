@@ -1,8 +1,12 @@
+<?php
+echo "";
+ ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Coventry CV</title>
+        <title>Derby DE</title>
         <link rel="stylesheet" href="src/leaflet.css">
         <link rel="stylesheet" href="src/css/bootstrap.css">
         <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css">
@@ -149,7 +153,7 @@
 
                 //  ********* Map Initialization ****************
 
-                mymap = L.map('mapdiv', {center:[52.41, -1.52], zoom:9, attributionControl:false});
+                mymap = L.map('mapdiv', {center:[52.92, -1.49], zoom:9, attributionControl:false});
 
                 mymap.options.minZoom = 9;
                 mymap.options.maxZoom = 21;
@@ -181,8 +185,8 @@
 
                 //******* loading our database **********
 
-
-               refreshEagles();
+                refreshLinears();
+                refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
@@ -199,10 +203,6 @@
 
 
             // ************ Client Linears **********
-
-
-
-
             function processClientLinears(json, lyr) {
                 var att = json.properties;
              lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
@@ -210,32 +210,40 @@
 
             }
 
-             function refreshLinears() {
-                $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'albansal', flds:"field_1, field_2, field_3, field_4, field_5"},
-                    type: 'GET',
-                    success: function(response){
-                        arProjectIDs=[];
-                        jsnLinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
-                        }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLinears, {color:'navy', dashArray:"5,6", fillOpacity:0 , opacity:0.1, onEachFeature:processClientLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Linear Projects");
-                        arProjectIDs.sort(function(a,b){return a-b});
-                        $("#txtFindEagle").autocomplete({
-                            source:arProjectIDs
-                        });
-
-                    },
-                    error: function(xhr, status, error){
-                       alert("ERROR: "+error);
-                    }
-                });
-            }
+            function refreshLinears() {
+                    $.ajax({
+                        url: 'load_allpostcodes.php',
+                        data: { tbl: 'merged', flds: 'id' },
+                        type: 'GET',
+                        success: function (response) {
+                            arProjectIDs = [];
+                            jsnLinears = JSON.parse(response);
+                            if (lyrClientLines) {
+                                ctlLayers.removeLayer(lyrClientLines);
+                                lyrClientLines.remove();
+                                lyrClientLinesBuffer.remove();
+                            }
+                            lyrClientLinesBuffer = L.featureGroup();
+                            lyrClientLines = L.geoJSON(jsnLinears, {
+                                color: 'black',
+                                dashArray: '5,5',
+                                fillOpacity: 0,
+                                opacity: 0.5,
+                                onEachFeature: processClientLinears,
+                            }).addTo(mymap);
+                            ctlLayers.addOverlay(lyrClientLines, 'Boundary');
+                            arProjectIDs.sort(function (a, b) {
+                                return a - b;
+                            });
+                            $('#txtFindEagle').autocomplete({
+                                source: arProjectIDs,
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            alert('ERROR: ' + error);
+                        },
+                    });
+                }
             // *********  Eagle Functions *****************
 
 
@@ -273,7 +281,7 @@
 
              function refreshEagles(){
                 $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'coventrycv', flds:'field_1, field_2, field_3, field_4, field_5'},
+                    data: {tbl:'derbyde', flds:'field_1, field_2, field_3, field_4, field_5'},
                     type: 'GET',
                     success: function(response){
                         arEagleIDs=[];

@@ -1,8 +1,12 @@
+<?php
+echo "";
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>London E</title>
+        <title>London EC</title>
         <link rel="stylesheet" href="src/leaflet.css" />
         <link rel="stylesheet" href="src/css/bootstrap.css" />
         <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css" />
@@ -243,18 +247,15 @@
                 fgpDrawnItems.addTo(mymap);
 
                 //******* loading our database **********
-                // refreshEagles();
 
+                refreshLinears();
                 refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
                 objBasemaps = {
                     'Open Street Maps': lyrOSM,
-                    'Topo Map': lyrTopo,
                     Imagery: lyrImagery,
-                    Outdoors: lyrOutdoors,
-                    Watercolor: lyrWatercolor,
                 };
 
                 objOverlays = {};
@@ -262,22 +263,13 @@
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
                 // ************ Client Linears **********
+            function processClientLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
+             arProjectIDs.push(att.layer.toString());
+            }
 
-                function processClientLinears(json, lyr) {
-                    var att = json.properties;
-                    lyr
-                        .bindPopup(
-                            '<h4>Area Postcode: ' +
-                                att.layer +
-                                '</h4> District Postcode: ' +
-                                att.name +
-                                '<br>'
-                        )
-                        .addTo(mymap);
-                    arProjectIDs.push(att.layer.toString());
-                }
-
-                function refreshLinears() {
+            function refreshLinears() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
                         data: { tbl: 'merged', flds: 'id' },
@@ -292,13 +284,13 @@
                             }
                             lyrClientLinesBuffer = L.featureGroup();
                             lyrClientLines = L.geoJSON(jsnLinears, {
-                                color: 'navy',
-                                dashArray: '5,6',
+                                color: 'black',
+                                dashArray: '5,5',
                                 fillOpacity: 0,
-                                opacity: 0.1,
+                                opacity: 0.5,
                                 onEachFeature: processClientLinears,
                             }).addTo(mymap);
-                            ctlLayers.addOverlay(lyrClientLines, 'Linear Projects');
+                            ctlLayers.addOverlay(lyrClientLines, 'Boundary');
                             arProjectIDs.sort(function (a, b) {
                                 return a - b;
                             });
@@ -356,7 +348,7 @@
                 function refreshEagles() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl:'londone', flds:'id, field_1, field_2, field_3, field_4, field_5' },
+                        data: { tbl:'londonec', flds:'id, field_1, field_2, field_3, field_4, field_5' },
                         type: 'GET',
                         success: function (response) {
                             arEagleIDs = [];

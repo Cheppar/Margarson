@@ -1,11 +1,12 @@
 <?php
 echo "";
  ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>Bradford BD</title>
+        <title>Colchester CO</title>
         <link rel="stylesheet" href="src/leaflet.css" />
         <link rel="stylesheet" href="src/css/bootstrap.css" />
         <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css" />
@@ -205,7 +206,7 @@ echo "";
                 //  ********* Map Initialization ****************
 
                 mymap = L.map('mapdiv', {
-                    center: [54.0, -2.12],
+                    center: [51.90, 0.89],
                     zoom: 9,
                     attributionControl: false,
                 });
@@ -236,10 +237,7 @@ echo "";
                 //   *********** Layer Initialization **********
 
                 lyrOSM = L.tileLayer.provider('OpenStreetMap.Mapnik');
-                lyrTopo = L.tileLayer.provider('OpenTopoMap');
                 lyrImagery = L.tileLayer.provider('Esri.WorldImagery');
-                lyrOutdoors = L.tileLayer.provider('Thunderforest.Outdoors');
-                lyrWatercolor = L.tileLayer.provider('Stamen.Watercolor');
                 mymap.addLayer(lyrOSM);
 
                 fgpDrawnItems = new L.FeatureGroup();
@@ -247,17 +245,14 @@ echo "";
 
                 //******* loading our database **********
 
-               refreshLinears();
+                refreshLinears();
                 refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
                 objBasemaps = {
                     'Open Street Maps': lyrOSM,
-                    'Topo Map': lyrTopo,
                     Imagery: lyrImagery,
-                    Outdoors: lyrOutdoors,
-                    Watercolor: lyrWatercolor,
                 };
 
                 objOverlays = {};
@@ -351,7 +346,7 @@ echo "";
                 function refreshEagles() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl:'bradfordbd', flds:'id, field_1, field_2, field_3, field_4, field_5' },
+                        data: { tbl:'Colchesterco', flds:'id, field_1, field_2, field_3, field_4, field_5' },
                         type: 'GET',
                         success: function (response) {
                             arEagleIDs = [];

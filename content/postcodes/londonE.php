@@ -1,11 +1,12 @@
 <?php
 echo "";
- ?>
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>Bradford BD</title>
+        <title>London E</title>
         <link rel="stylesheet" href="src/leaflet.css" />
         <link rel="stylesheet" href="src/css/bootstrap.css" />
         <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css" />
@@ -205,7 +206,7 @@ echo "";
                 //  ********* Map Initialization ****************
 
                 mymap = L.map('mapdiv', {
-                    center: [54.0, -2.12],
+                    center: [51.52, -0.11],
                     zoom: 9,
                     attributionControl: false,
                 });
@@ -222,7 +223,7 @@ echo "";
                 ctlAttribute = L.control.attribution().addTo(mymap);
                 ctlAttribute.addAttribution('OSM');
                 ctlAttribute.addAttribution(
-                    '&copy; <a href="#">Margarson</a>'
+                    '&copy; <a href="http://nakuplan.com">Godfrey Ejiofor</a>'
                 );
 
                 ctlScale = L.control
@@ -246,18 +247,14 @@ echo "";
                 fgpDrawnItems.addTo(mymap);
 
                 //******* loading our database **********
-
-               refreshLinears();
+                refreshLinears();
                 refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
                 objBasemaps = {
                     'Open Street Maps': lyrOSM,
-                    'Topo Map': lyrTopo,
                     Imagery: lyrImagery,
-                    Outdoors: lyrOutdoors,
-                    Watercolor: lyrWatercolor,
                 };
 
                 objOverlays = {};
@@ -265,14 +262,22 @@ echo "";
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
                 // ************ Client Linears **********
-            function processClientLinears(json, lyr) {
-                var att = json.properties;
-             lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
-             arProjectIDs.push(att.layer.toString());
 
-            }
+                function processClientLinears(json, lyr) {
+                    var att = json.properties;
+                    lyr
+                        .bindPopup(
+                            '<h4>Area Postcode: ' +
+                                att.layer +
+                                '</h4> District Postcode: ' +
+                                att.name +
+                                '<br>'
+                        )
+                        .addTo(mymap);
+                    arProjectIDs.push(att.layer.toString());
+                }
 
-            function refreshLinears() {
+                function refreshLinears() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
                         data: { tbl: 'merged', flds: 'id' },
@@ -287,13 +292,13 @@ echo "";
                             }
                             lyrClientLinesBuffer = L.featureGroup();
                             lyrClientLines = L.geoJSON(jsnLinears, {
-                                color: 'black',
-                                dashArray: '5,5',
+                                color: 'navy',
+                                dashArray: '5,6',
                                 fillOpacity: 0,
-                                opacity: 0.5,
+                                opacity: 0.1,
                                 onEachFeature: processClientLinears,
                             }).addTo(mymap);
-                            ctlLayers.addOverlay(lyrClientLines, 'Boundary');
+                            ctlLayers.addOverlay(lyrClientLines, 'Linear Projects');
                             arProjectIDs.sort(function (a, b) {
                                 return a - b;
                             });
@@ -351,7 +356,7 @@ echo "";
                 function refreshEagles() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl:'bradfordbd', flds:'id, field_1, field_2, field_3, field_4, field_5' },
+                        data: { tbl:'londone', flds:'id, field_1, field_2, field_3, field_4, field_5' },
                         type: 'GET',
                         success: function (response) {
                             arEagleIDs = [];
