@@ -4,9 +4,10 @@ This project belongs to Oliver Margarson and entails the mapping of UK postcodes
 ### Installation 
 Folders attached are 
 - postcodes folder that contains all files
-- ukpostcodes.sql - a script to setup the database. 
-- Download it from ```php
-- nakuplan.com/private/ukpostcodes.sql```
+- ukpostcodes.sql - a script to setup the database. Download it from 
+```php
+nakuplan.com/private/ukpostcodes.sql
+```
 
 ### Customise
 This project runs on localhost, you will have to change some configurations for it to work for you.
@@ -46,9 +47,22 @@ Check your database by refreshing it.
 localhost:8080/postcodes/content/index.html
 ```
 OR 
-- When you open localhost, there is a start-page that has a URL. Edit as shown below.
+- Also, when you open localhost, there is a start-page that has a URL. Edit as shown below.
 
  ```php
-localhost:8080/*****/*****/*****
+localhost:8080/postcodes/content/index.html
 ```
+## How to navigate 
+The index page has a boundary seprated into
+- Scotland
+- England (regions).
+- Wales 
+- Northern Ireland
+
+On the left is a layer navigation pane. Click on the Imagery button to display satelite imagery. 
+Display or remove the postcodes and boundary.
+#### NB The towns listed ends at Inverness IV postcode.
+
+If you would like a content management system, kindly feel free to reach out to me via Github.
+
 
