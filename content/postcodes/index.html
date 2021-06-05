@@ -1,3 +1,6 @@
+<?php
+echo "";
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -188,6 +191,10 @@
                refreshNorthwest();
                refreshLondon();
                refreshEastern();
+               refreshWestmid();
+               refreshEastmid();
+               refreshSoutheast();
+               refreshSouthwst();
 
 
                 // ********* Setup Layer Control  ***************
@@ -435,7 +442,7 @@ function processNeLinears(json, lyr) {
                             lyrClientLinesBuffer.remove();
                         }
                         lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLonlinears, {color:'brown', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processLonLinears}).addTo(mymap);
+                        lyrClientLines = L.geoJSON(jsnLonlinears, {color:'black', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processLonLinears}).addTo(mymap);
                         ctlLayers.addOverlay(lyrClientLines, "London Boundary");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
@@ -451,7 +458,7 @@ function processNeLinears(json, lyr) {
              //****************** Eastern England ********************//
             function processEasternLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='albans.php'>Albans AL</a><br><a href='cambridge.php'>Cambridge CB</a><br><a href='chelmsford.php'>Chelmsford CM</a><br><a href='colchester.php'>Colchester CO</a><br><a href='enfield.php'>Enfield EN</a><br><a href='harrow.php'>Harrow HA</a><br><a href='hempstead.php'>Hempstead HP</a><br>").addTo(mymap);
+             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='albans.php'>Albans AL</a><br><a href='cambridge.php'>Cambridge CB</a><br><a href='chelmsford.php'>Chelmsford CM</a><br><a href='colchester.php'>Colchester CO</a><br><a href='enfield.php'>Enfield EN</a><br><a href='harrow.php'>Harrow HA</a><br><a href='hempstead.php'>Hemel & Hempstead HP</a><br>").addTo(mymap);
              arProjectIDs.push(att.id.toString());
             }
 
@@ -517,8 +524,144 @@ function processNeLinears(json, lyr) {
                 });
             }
 
-            //****************** Start NorthWest England ********************//
+            //************* South Midlands************//
 
+
+              function processWmidBoundary(json, lyr) {
+                    var att = json.properties;
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='birmingham.php'>Birmingham B</a><br><a href='coventry.php'>Coventry CV</a><br><a href='dudley.php'>Dudley DY</a><br><a href='hereford.php'>Hereford HE</a><br> ").addTo(mymap);
+                 arProjectIDs.push(att.id.toString());
+
+                }
+
+             function  refreshWestmid() {
+                $.ajax({url:'load_allpostcodes.php',
+                    data: {tbl:'westmid_bou', flds:"id, name"},
+                    type: 'GET',
+                    success: function(response){
+                        arProjectIDs=[];
+                        jsnSw = JSON.parse(response);
+                        if (lyrClientLines) {
+                            ctlLayers.removeLayer(lyrClientLines);
+                            // lyrClientLines.remove();
+                            lyrClientLinesBuffer.remove();
+                        }
+                        lyrClientLinesBuffer = L.featureGroup();
+                        lyrClientLines = L.geoJSON(jsnSw, {color:'orange', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processWmidBoundary}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+                        arProjectIDs.sort(function(a,b){return a-b});
+                        $("#txtFindEagle").autocomplete({
+                            source:arProjectIDs
+                        });
+
+                    },
+                    error: function(xhr, status, error){
+                       alert("ERROR: "+error);
+                    }
+                });
+            }
+            //  ***********  East Midlands *********
+
+            function processEmidBoundary(json, lyr) {
+                    var att = json.properties;
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='birmingham.php'>Birmingham B</a><br><a href='coventry.php'>Coventry CV</a><br><a href='dudley.php'>Dudley DY</a><br><a href='hereford.php'>Hereford HE</a><br> ").addTo(mymap);
+                 arProjectIDs.push(att.id.toString());
+
+                }
+
+             function  refreshEastmid() {
+                $.ajax({url:'load_allpostcodes.php',
+                    data: {tbl:'eastmid_bou', flds:"id, name"},
+                    type: 'GET',
+                    success: function(response){
+                        arProjectIDs=[];
+                        jsnEm = JSON.parse(response);
+                        if (lyrClientLines) {
+                            ctlLayers.removeLayer(lyrClientLines);
+                            // lyrClientLines.remove();
+                            lyrClientLinesBuffer.remove();
+                        }
+                        lyrClientLinesBuffer = L.featureGroup();
+                        lyrClientLines = L.geoJSON(jsnEm, {color:'grey', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processEmidBoundary}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+                        arProjectIDs.sort(function(a,b){return a-b});
+                        $("#txtFindEagle").autocomplete({
+                            source:arProjectIDs
+                        });
+
+                    },
+                    error: function(xhr, status, error){
+                       alert("ERROR: "+error);
+                    }
+                });
+            }
+            //  ***********  South East Boundary  *********
+              function processSouthestBoundary(json, lyr) {
+                    var att = json.properties;
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='brighton.php'>Brighton BN</a><br><a href='bromley.php'>Bromley BR</a><br><a href='croydon.php'>Croydon CR</a><br><a href='canterbury.php'>Canterbury CT</a><br><a href='dartford.php'>Dartford DA *</a><br><a href='guildford.php'>Guildford GU</a><br><a href='hempstead.php'>Hempstead HP</a> ").addTo(mymap);
+                 arProjectIDs.push(att.id.toString());
+
+                }
+
+             function  refreshSoutheast() {
+                $.ajax({url:'load_allpostcodes.php',
+                    data: {tbl:'southeast_bou', flds:"id, name"},
+                    type: 'GET',
+                    success: function(response){
+                        arProjectIDs=[];
+                        jsnSe = JSON.parse(response);
+                        if (lyrClientLines) {
+                            ctlLayers.removeLayer(lyrClientLines);
+                            // lyrClientLines.remove();
+                            lyrClientLinesBuffer.remove();
+                        }
+                        lyrClientLinesBuffer = L.featureGroup();
+                        lyrClientLines = L.geoJSON(jsnSe, {color:'red', dashArray:"5,5", fillOpacity:0.2 , opacity:0.4, onEachFeature:processSouthestBoundary}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+                        arProjectIDs.sort(function(a,b){return a-b});
+                        $("#txtFindEagle").autocomplete({
+                            source:arProjectIDs
+                        });
+                    },
+                    error: function(xhr, status, error){
+                       alert("ERROR: "+error);
+                    }
+                });
+            }
+             //***********  Southwest Boundary *********
+
+             function processSouthwstBoundary(json, lyr) {
+                    var att = json.properties;
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bath.php'>Bath BA</a><br><a href='Bournemouth.php'>Bournemouth BH</a><br><a href='bristol.php'>Bristol BS</a><br><a href='Dorchester.php'>Dorchester DT</a><br><a href='exeter.php'>Exeter EX</a><br><a href='gloucester.php'>Glocester GL</a>").addTo(mymap);
+                 arProjectIDs.push(att.name.toString());
+
+                }
+
+             function  refreshSouthwst() {
+                $.ajax({url:'load_allpostcodes.php',
+                    data: {tbl:'sw-england_bou', flds:"id, name"},
+                    type: 'GET',
+                    success: function(response){
+                        arProjectIDs=[];
+                        jsnSwest = JSON.parse(response);
+                        if (lyrClientLines) {
+                            ctlLayers.removeLayer(lyrClientLines);
+                            // lyrClientLines.remove();
+                            lyrClientLinesBuffer.remove();
+                        }
+                        lyrClientLinesBuffer = L.featureGroup();
+                        lyrClientLines = L.geoJSON( jsnSwest, {color:'red', dashArray:"5,5", fillOpacity:0.2 , opacity:0.4, onEachFeature:processSouthwstBoundary}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+                        arProjectIDs.sort(function(a,b){return a-b});
+                        $("#txtFindEagle").autocomplete({
+                            source:arProjectIDs
+                        });
+                    },
+                    error: function(xhr, status, error){
+                       alert("ERROR: "+error);
+                    }
+                });
+            }
 
             //  ***********  General Functions *********
 

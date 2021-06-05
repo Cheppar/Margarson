@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Brighton BN</title>
+        <title>Birmingham B</title>
         <link rel="stylesheet" href="src/leaflet.css">
         <link rel="stylesheet" href="src/css/bootstrap.css">
         <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css">
@@ -91,7 +92,7 @@
                             <circle cx="25" cy="15" r="10" style="stroke-width: 4; stroke: deeppink; fill: cyan; fill-opacity:0.5;"/>
                             <text x="50" y="20" style="font-family: sans-serif; font-size: 16px;">Live Addresses</text>
 
-                            <circle cx="25" cy="75" r="10" style="stroke-width: 4; stroke: black; fill: green; fill-opacity:0.5;"/>
+                            <circle cx="25" cy="75" r="10" style="stroke-width: 4; stroke: cyan; fill: cyan; fill-opacity:0.5;"/>
                             <text x="50" y="80" style="font-family: sans-serif; font-size: 16px;">Terminated</text>
                         </svg>
                     </div>
@@ -149,10 +150,10 @@
 
                 //  ********* Map Initialization ****************
 
-                mymap = L.map('mapdiv', {center:[50.82, -0.13], zoom:9, attributionControl:false});
+                mymap = L.map('mapdiv', {center:[52.49, -1.89], zoom:9, attributionControl:false});
 
-                mymap.options.minZoom = 9;
-                mymap.options.maxZoom = 21;
+                mymap.options.minZoom = 11;
+                mymap.options.maxZoom = 19;
 
                 ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
 
@@ -162,7 +163,7 @@
 
                 ctlAttribute = L.control.attribution().addTo(mymap);
                 ctlAttribute.addAttribution('OSM');
-                ctlAttribute.addAttribution('&copy; <a href="#">Electrolve UK</a>');
+                ctlAttribute.addAttribution('&copy; <a href="#">Margarson</a>');
 
                 ctlScale = L.control.scale({position:'bottomleft', metric:false, maxWidth:200}).addTo(mymap);
 
@@ -181,68 +182,65 @@
 
                 //******* loading our database **********
 
+            refreshLinears();
+            refreshEagles();
 
-               refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
                 objBasemaps = {
                     "Open Street Maps": lyrOSM,
-                    "Topo Map":lyrTopo,
                     "Imagery":lyrImagery,
-                    "Outdoors":lyrOutdoors,
-                    "Watercolor":lyrWatercolor
                 };
-
                 objOverlays = {
-
                 };
 
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
 
             // ************ Client Linears **********
-
-
-
-
-            function processClientLinears(json, lyr) {
+           function processClientLinears(json, lyr) {
                 var att = json.properties;
              lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
              arProjectIDs.push(att.layer.toString());
 
             }
 
-             function refreshLinears() {
-                $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'albansal', flds:"field_1, field_2, field_3, field_4, field_5"},
-                    type: 'GET',
-                    success: function(response){
-                        arProjectIDs=[];
-                        jsnLinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
-                        }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLinears, {color:'navy', dashArray:"5,6", fillOpacity:0 , opacity:0.1, onEachFeature:processClientLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Linear Projects");
-                        arProjectIDs.sort(function(a,b){return a-b});
-                        $("#txtFindEagle").autocomplete({
-                            source:arProjectIDs
-                        });
-
-                    },
-                    error: function(xhr, status, error){
-                       alert("ERROR: "+error);
-                    }
-                });
-            }
+            function refreshLinears() {
+                    $.ajax({
+                        url: 'load_allpostcodes.php',
+                        data: { tbl: 'merged', flds: 'id' },
+                        type: 'GET',
+                        success: function (response) {
+                            arProjectIDs = [];
+                            jsnLinears = JSON.parse(response);
+                            if (lyrClientLines) {
+                                ctlLayers.removeLayer(lyrClientLines);
+                                lyrClientLines.remove();
+                                lyrClientLinesBuffer.remove();
+                            }
+                            lyrClientLinesBuffer = L.featureGroup();
+                            lyrClientLines = L.geoJSON(jsnLinears, {
+                                color: 'black',
+                                dashArray: '5,5',
+                                fillOpacity: 0,
+                                opacity: 0.5,
+                                onEachFeature: processClientLinears,
+                            }).addTo(mymap);
+                            ctlLayers.addOverlay(lyrClientLines, 'Boundary');
+                            arProjectIDs.sort(function (a, b) {
+                                return a - b;
+                            });
+                            $('#txtFindEagle').autocomplete({
+                                source: arProjectIDs,
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            alert('ERROR: ' + error);
+                        },
+                    });
+                }
             // *********  Eagle Functions *****************
-
-
-
             function returnEagleMarker(json, latlng){
                 var att = json.properties;
                 if (att.field_2=='live') {
@@ -252,7 +250,7 @@
                 }
 
                 arEagleIDs.push(att.field_2.toString());
-                return L.circle(latlng, {radius:1, color:clrNest,fillColor:'chartreuse', fillOpacity:0.5});
+                return L.circle(latlng, {radius:2, color:clrNest,fillColor:'chartreuse', fillOpacity:0.5});
             }
 
             function processPcodemarker(json,lyr){
@@ -276,7 +274,7 @@
 
              function refreshEagles(){
                 $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'brightonbn', flds:'field_1, field_2, field_3, field_4, field_5'},
+                    data: {tbl:'birmingham', flds:'field_1, field_2, field_3, field_4, field_5'},
                     type: 'GET',
                     success: function(response){
                         arEagleIDs=[];
@@ -305,36 +303,36 @@
                 });
             }
 
-            //  function refreshPagles(){
-            //     $.ajax({url:'load_allpostcodes.php',
-            //         data: {tbl:'bath', flds:'field_1, field_2, field_3, field_4, field_5'},
-            //         type: 'GET',
-            //         success: function(response){
-            //             arEagleIDs=[];
-            //             jsnPagles = JSON.parse(response);
-            //             if(lyrPagleNests){
-            //                 ctlLayers.removeLayer(lyrPaglesNests);
-            //                 ctlLayers.removeLayer(lyrMarkerCluster);
-            //                 lyrPagleNests.remove();
-            //             }
-            //             lyrPagleNests = L.geoJSON(jsnPagles,
-            //             { onEachFeature:processPcodemarker, pointToLayer:returnEagleMarker, filter:filterEagle});
-            //         ctlLayers.addOverlay(lyrPagleNests, "Post Codes");
-            //         arEagleIDs.sort(function(a,b){return a-b});
-            //         $("#txtFindEagle").autocomplete({
-            //             source:arEagleIDs
-            //         });
-            //         lyrMarkerCluster = L.markerClusterGroup();
-            //             lyrMarkerCluster.clearLayers();
-            //             lyrMarkerCluster.addLayer(lyrPagleNests);
-            //             lyrMarkerCluster.addTo(mymap);
-            //             ctlLayers.addOverlay(lyrMarkerCluster, "BOLTON");
-            //         },
-            //         error: function(xhr, status, error){
-            //             alert("ERROR: "+error);
-            //         }
-            //     });
-            // }
+             function refreshPagles(){
+                $.ajax({url:'load_allpostcodes.php',
+                    data: {tbl:'bath', flds:'field_1, field_2, field_3, field_4, field_5'},
+                    type: 'GET',
+                    success: function(response){
+                        arEagleIDs=[];
+                        jsnPagles = JSON.parse(response);
+                        if(lyrPagleNests){
+                            ctlLayers.removeLayer(lyrPaglesNests);
+                            ctlLayers.removeLayer(lyrMarkerCluster);
+                            lyrPagleNests.remove();
+                        }
+                        lyrPagleNests = L.geoJSON(jsnPagles,
+                        { onEachFeature:processPcodemarker, pointToLayer:returnEagleMarker, filter:filterEagle});
+                    ctlLayers.addOverlay(lyrPagleNests, "Post Codes");
+                    arEagleIDs.sort(function(a,b){return a-b});
+                    $("#txtFindEagle").autocomplete({
+                        source:arEagleIDs
+                    });
+                    lyrMarkerCluster = L.markerClusterGroup();
+                        lyrMarkerCluster.clearLayers();
+                        lyrMarkerCluster.addLayer(lyrPagleNests);
+                        lyrMarkerCluster.addTo(mymap);
+                        ctlLayers.addOverlay(lyrMarkerCluster, "BOLTON");
+                    },
+                    error: function(xhr, status, error){
+                        alert("ERROR: "+error);
+                    }
+                });
+            }
 
 
 
