@@ -639,7 +639,7 @@ function processNeLinears(json, lyr) {
 
              function  refreshSouthwst() {
                 $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'sw-england_bou', flds:"id, name"},
+                    data: {tbl:'southwest_bou', flds:"id, name"},
                     type: 'GET',
                     success: function(response){
                         arProjectIDs=[];
