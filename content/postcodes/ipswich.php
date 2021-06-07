@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<title>iiford IF</title>
+		<title>Ipswich IP</title>
 		<link rel="stylesheet" href="src/leaflet.css" />
 		<link rel="stylesheet" href="src/css/bootstrap.css" />
 		<link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css" />
@@ -202,7 +202,7 @@
 				//  ********* Map Initialization ****************
 
 				mymap = L.map('mapdiv', {
-					center: [51.66, 0.11],
+					center: [52.06, 1.14],
 					zoom: 9,
 					attributionControl: false,
 				});
@@ -356,7 +356,7 @@
 				function refreshEagles() {
 					$.ajax({
 						url: 'load_allpostcodes.php',
-						data: { tbl:'ilfordig', flds:'id, field_1, field_2, field_3, field_4, field_5' },
+						data: { tbl:'ipswitch', flds:'id, field_1, field_2, field_3, field_4, field_5' },
 						type: 'GET',
 						success: function (response) {
 							arEagleIDs = [];

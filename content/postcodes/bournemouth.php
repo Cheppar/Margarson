@@ -1,12 +1,8 @@
-<?php
-echo "";
- ?>
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Dudley DY</title>
+        <title>Bournemouth BH</title>
         <link rel="stylesheet" href="src/leaflet.css">
         <link rel="stylesheet" href="src/css/bootstrap.css">
         <link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css">
@@ -92,7 +88,7 @@ echo "";
 
                     <div id="lgndRaptorDetail">
                         <svg height="100">
-                            <circle cx="25" cy="15" r="10" style="stroke-width: 4; stroke: deeppink; fill: cyan; fill-opacity:0.5;"/>
+                            <circle cx="25" cy="15" r="10" style="stroke-width: 4; stroke: deeppink; fill: green; fill-opacity:0.5;"/>
                             <text x="50" y="20" style="font-family: sans-serif; font-size: 16px;">Live Addresses</text>
 
                             <circle cx="25" cy="75" r="10" style="stroke-width: 4; stroke: black; fill: green; fill-opacity:0.5;"/>
@@ -153,9 +149,9 @@ echo "";
 
                 //  ********* Map Initialization ****************
 
-                mymap = L.map('mapdiv', {center:[52.51, -2.0d], zoom:9, attributionControl:false});
+                mymap = L.map('mapdiv', {center:[50.72, -1.88], zoom:10, attributionControl:false});
 
-                mymap.options.minZoom = 9;
+                mymap.options.minZoom = 10;
                 mymap.options.maxZoom = 21;
 
                 ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
@@ -166,7 +162,7 @@ echo "";
 
                 ctlAttribute = L.control.attribution().addTo(mymap);
                 ctlAttribute.addAttribution('OSM');
-                ctlAttribute.addAttribution('&copy; <a href="#">Electrolve UK</a>');
+                ctlAttribute.addAttribution('&copy; <a href="http://nakuplan.com">Godfrey Ejiofor</a>');
 
                 ctlScale = L.control.scale({position:'bottomleft', metric:false, maxWidth:200}).addTo(mymap);
 
@@ -183,16 +179,17 @@ echo "";
                 fgpDrawnItems = new L.FeatureGroup();
                 fgpDrawnItems.addTo(mymap);
 
-                //******* loading our database **********
+//******* loading our database **********
 
                 refreshLinears();
-                refreshEagles();
+               refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
                 objBasemaps = {
                     "Open Street Maps": lyrOSM,
-                    "Imagery":lyrImagery,
+                    "Imagery":lyrImagery
+
                 };
 
                 objOverlays = {
@@ -203,7 +200,7 @@ echo "";
 
 
             // ************ Client Linears **********
-            function processClientLinears(json, lyr) {
+             function processClientLinears(json, lyr) {
                 var att = json.properties;
              lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
              arProjectIDs.push(att.layer.toString());
@@ -281,7 +278,7 @@ echo "";
 
              function refreshEagles(){
                 $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'coventrycv', flds:'field_1, field_2, field_3, field_4, field_5'},
+                    data: {tbl:'bournemouthbh', flds:'field_1, field_2, field_3, field_4, field_5'},
                     type: 'GET',
                     success: function(response){
                         arEagleIDs=[];

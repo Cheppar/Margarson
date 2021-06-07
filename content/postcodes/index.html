@@ -393,7 +393,7 @@ function processNeLinears(json, lyr) {
 
             function processNwLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>District: "+att.name+"</h4><a href='blackpool.php'>Blackpool BL *</a><br><a href='blackburn.php'>Blackburn BB</a><br><a href='carlisle.php'>Carlisle CA</a><br><a href='crewe.php'>Crewe CW *</a><br><a href='blackpoolfy.php'>Blackpool FY</a> ").addTo(mymap);
+             lyr.bindPopup("<h4>District: "+att.name+"</h4><a href='bolton.php'>Bolton BL *</a><br><a href='blackburn.php'>Blackburn BB</a><br><a href='chester.php'>Chester CH</a><br><a href='carlisle.php'>Carlisle CA</a><br><a href='crewe.php'>Crewe CW *</a><br><a href='blackpool.php'>Blackpool FY</a><br><a href='chester.php'>Blackpool FY</a>").addTo(mymap);
              arProjectIDs.push(att.id.toString());
             }
 
@@ -426,7 +426,7 @@ function processNeLinears(json, lyr) {
             //*************** London Boundary ********************//
             function processLonLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='londonEC.php'>London EC</a><br><a href='londonE.php'>London E</a>").addTo(mymap);
+             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='londonEC.php'>London EC</a><br><a href='londonE.php'>London E</a><br><a href='ilford.php'>Ilford IG</a>").addTo(mymap);
              arProjectIDs.push(att.id.toString());
             }
 
@@ -458,7 +458,7 @@ function processNeLinears(json, lyr) {
              //****************** Eastern England ********************//
             function processEasternLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='albans.php'>Albans AL</a><br><a href='cambridge.php'>Cambridge CB</a><br><a href='chelmsford.php'>Chelmsford CM</a><br><a href='colchester.php'>Colchester CO</a><br><a href='enfield.php'>Enfield EN</a><br><a href='harrow.php'>Harrow HA</a><br><a href='hempstead.php'>Hemel & Hempstead HP</a><br>").addTo(mymap);
+             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='albans.php'>Albans AL</a><br><a href='cambridge.php'>Cambridge CB</a><br><a href='chelmsford.php'>Chelmsford CM</a><br><a href='colchester.php'>Colchester CO</a><br><a href='enfield.php'>Enfield EN</a><br><a href='harrow.php'>Harrow HA</a><br><a href='hempstead.php'>Hemel & Hempstead HP</a><a href='ipswich.php'>Ipswich IP</a>").addTo(mymap);
              arProjectIDs.push(att.id.toString());
             }
 
@@ -632,7 +632,7 @@ function processNeLinears(json, lyr) {
 
              function processSouthwstBoundary(json, lyr) {
                     var att = json.properties;
-                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bath.php'>Bath BA</a><br><a href='Bournemouth.php'>Bournemouth BH</a><br><a href='bristol.php'>Bristol BS</a><br><a href='Dorchester.php'>Dorchester DT</a><br><a href='exeter.php'>Exeter EX</a><br><a href='gloucester.php'>Glocester GL</a>").addTo(mymap);
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bath.php'>Bath BA</a><br><a href='Bournemouth.php'>Bournemouth BH</a><br><a href='bristol.php'>Bristol BS</a><br><a href='dorchester.php'>Dorchester DT*</a><br><a href='exeter.php'>Exeter EX</a><br><a href='gloucester.php'>Gloucester GL</a>").addTo(mymap);
                  arProjectIDs.push(att.name.toString());
 
                 }
