@@ -75,15 +75,17 @@ echo "";
         </style>
     </head>
     <body>
-        <div id="side-bar" class="col-md-3">
-            <button id="btnLocat" class="btn btn-primary btn-block">Locate</button>
+
+
+    <div id="side-bar" class="col-md-2">
+            <button id="btnLocate" class="btn btn-primary btn-block">Locate</button>
             <button id="btnShowLegend" class="btn btn-primary btn-block">
                 Show Legend
             </button>
             <div id="legend">
                 <div id="lgndClientLinears">
-                    <h4 class="text-center">
-                        Linear Boundary<i id="btnLinearProjects"></i>
+                    <h4 class="float-left">
+                        Legend / Key
                     </h4>
                     <div id="lgndLinearProjectsDetail">
                         <svg height="50" width="100%">
@@ -92,7 +94,7 @@ echo "";
                                 y1="10"
                                 x2="40"
                                 y2="10"
-                                style="stroke: blue; stroke-width: 2"
+                                style="stroke: black; stroke-width: 2"
                             />
                             <text
                                 x="50"
@@ -134,26 +136,22 @@ echo "";
                                             y="20"
                                             style="font-family: sans-serif; font-size: 16px"
                                         >
-                                            Live Addresses
+                                            Live / working Address
                                         </text>
-
                                         <circle
                                             cx="25"
                                             cy="75"
                                             r="10"
                                             style="
                                                 stroke-width: 4;
-                                                stroke: cyan;
+                                                stroke: black;
                                                 fill: cyan;
-                                                fill-opacity: 0.5;
-                                            "
-                                        />
+                                                fill-opacity: 0.5; "/>
                                         <text
                                             x="50"
                                             y="80"
-                                            style="font-family: sans-serif; font-size: 16px"
-                                        >
-                                            Terminated
+                                            style="font-family: sans-serif; font-size: 16px">
+                                            Terminated Address
                                         </text>
                                     </svg>
                                 </div>
@@ -163,9 +161,12 @@ echo "";
                 </div>
             </div>
         </div>
+</div>
+
+
 
         <div id="mapdiv" class="col-md-12"></div>
-        <script>
+        <script type="module">
             var mymap;
             var lyrOSM;
             var lyrWatercolor;
@@ -273,7 +274,7 @@ echo "";
             function refreshLinears() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl: 'merged', flds: 'id' },
+                        data: { tbl: 'merged', flds: 'layer' },
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];

@@ -202,12 +202,12 @@
 				//  ********* Map Initialization ****************
 
 				mymap = L.map('mapdiv', {
-					center: [53.72, -1.78],
-					zoom: 9,
+					center: [53.67, -1.78],
+					zoom: 10,
 					attributionControl: false,
 				});
 
-				mymap.options.minZoom = 9;
+				mymap.options.minZoom = 10;
                 mymap.options.maxZoom = 19;
 
 				ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
@@ -261,7 +261,7 @@
 
 				function processClientLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
+             lyr.bindPopup("<h4>Sector: "+att.layer+"</h4>").addTo(mymap);
              arProjectIDs.push(att.layer.toString());
 
             }
@@ -328,7 +328,7 @@
 				function processBaglemarker(json, lyr) {
 					var att = json.properties;
 					lyr
-						.bindTooltip('<h4>Post Code: ' + att.field_1 + '</h4>')
+						.bindTooltip('<h4>District: ' + att.field_1 + '</h4>')
 						.openPopup();
 				}
 

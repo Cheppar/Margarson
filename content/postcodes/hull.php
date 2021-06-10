@@ -258,7 +258,7 @@
 
 				// ************ Client Linears **********
 
-				function processClientLinears(json, lyr) {
+			function processClientLinears(json, lyr) {
                 var att = json.properties;
              lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
              arProjectIDs.push(att.layer.toString());
