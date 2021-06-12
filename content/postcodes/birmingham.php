@@ -117,7 +117,7 @@
             var lyrImagery;
             var lyrOutdoors;
             var lyrEagleNests;
-            var lyrPagleNests;
+            var lyrSectors;
             var lyrBagleNests;
             var lyrRaptorNests;
             var lyrClientLines;
@@ -181,7 +181,7 @@
                 fgpDrawnItems.addTo(mymap);
 
                 //******* loading our database **********
-
+            refreshSectors();
             refreshLinears();
             refreshEagles();
 
@@ -221,8 +221,8 @@
                             }
                             lyrClientLinesBuffer = L.featureGroup();
                             lyrClientLines = L.geoJSON(jsnLinears, {
-                                color: 'black',
-                                dashArray: '5,5',
+                                color: 'red',
+                                dashArray: '6,7',
                                 fillOpacity: 0,
                                 opacity: 0.5,
                                 onEachFeature: processClientLinears,
@@ -302,44 +302,87 @@
                     }
                 });
             }
+            //************** Sectors function ********************
 
-             function refreshPagles(){
-                $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'bath', flds:'field_1, field_2, field_3, field_4, field_5'},
-                    type: 'GET',
-                    success: function(response){
-                        arEagleIDs=[];
-                        jsnPagles = JSON.parse(response);
-                        if(lyrPagleNests){
-                            ctlLayers.removeLayer(lyrPaglesNests);
-                            ctlLayers.removeLayer(lyrMarkerCluster);
-                            lyrPagleNests.remove();
-                        }
-                        lyrPagleNests = L.geoJSON(jsnPagles,
-                        { onEachFeature:processPcodemarker, pointToLayer:returnEagleMarker, filter:filterEagle});
-                    ctlLayers.addOverlay(lyrPagleNests, "Post Codes");
-                    arEagleIDs.sort(function(a,b){return a-b});
-                    $("#txtFindEagle").autocomplete({
-                        source:arEagleIDs
-                    });
-                    lyrMarkerCluster = L.markerClusterGroup();
-                        lyrMarkerCluster.clearLayers();
-                        lyrMarkerCluster.addLayer(lyrPagleNests);
-                        lyrMarkerCluster.addTo(mymap);
-                        ctlLayers.addOverlay(lyrMarkerCluster, "BOLTON");
-                    },
-                    error: function(xhr, status, error){
-                        alert("ERROR: "+error);
-                    }
-                });
+              function processSectorLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Sector: "+att.strsect+"</h4> District: "+att.postdist+"<br>").addTo(mymap);
+             arProjectIDs.push(att.strsect.toString());
+
             }
 
+            function refreshSectors() {
+                    $.ajax({
+                        url: 'load_allpostcodes.php',
+                        data: { tbl: 'sectors', flds: 'strsect, pos, postarea, x, y' },
+                        type: 'GET',
+                        success: function (response) {
+                            arProjectIDs = [];
+                            jsnSectors = JSON.parse(response);
+                            if (lyrSectors) {
+                                ctlLayers.removeLayer(lyrSectors);
+                                lyrSectors.remove();
 
+                            }
+
+                            lyrSectors = L.geoJSON(jsnSectors, {
+                                color: 'black',
+                                dashArray: '5,5',
+                                fillOpacity: 0,
+                                opacity: 0.5,
+                                onEachFeature: processSectorLinears,
+                            }).addTo(mymap);
+                            ctlLayers.addOverlay(lyrSectors, 'Sector Boundary');
+                            arProjectIDs.sort(function (a, b) {
+                                return a - b;
+                            });
+                            $('#txtFindEagle').autocomplete({
+                                source: arProjectIDs,
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            alert('ERROR: ' + error);
+                        },
+                    });
+                }
 
 
 
             //  ***********  General Functions *********
+function zoom_based_layerchange() {
+    //console.log(map.getZoom());
+    $("#zoomlevel").html(map.getZoom());
+    var currentZoom = map.getZoom();
+    switch (currentZoom) {
+        case 11:
+            clean_map();
+            lyrClientLines.addTo(mymap); //show Coors Field
+            $("#layername").html("Coors Field");
+            break;
+        case 12:
+            clean_map();
 
+            buslayer.addTo(map); //show Busline
+            $("#layername").html("Busline");
+            break;
+        case 13:
+            clean_map();
+            campuslayer.addTo(map);
+            $("#layername").html("Campus");
+            // show Campus
+            break;
+        case 14:
+            clean_map();
+            rental.addTo(map);
+            $("#layername").html("Rental");
+            // show rental
+            break;
+
+        default:
+            // do nothing
+            break;
+    }
+}
 
                 $("btnLocate").click(function(){
                     mymap.locate();

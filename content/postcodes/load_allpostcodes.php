@@ -25,7 +25,7 @@
         ];
         $pdo = new PDO($dsn, 'postgres', 'cheppar#11947', $opt);
 
-        $result = $pdo->query("SELECT *, ST_AsGeoJSON(geom, 5) AS geojson FROM {$table}{$where}");
+        $result = $pdo->query("SELECT *, ST_AsGeoJSON(geom, 5) AS geojson FROM {$table}{$where} LIMIT 100 OFFSET 50");
         $features=[];
         foreach($result AS $row) {
             unset($row['geom']);
