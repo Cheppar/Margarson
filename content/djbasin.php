@@ -427,12 +427,50 @@
                     mymap.setView(e.latlng, 14);
                 });
 
-                mymap.on('locationerror', function(e) {
-                    console.log(e);
-                    alert("Location was not found");
+                mymap.on('zoomend', function(e) {
+                    if (mymap.getZoom() <9){
+                        mymap.removeLayer(refreshEagles);
+                        mymap.removeLayer(refreshLinears);//1st geoJSON layer
+                    }else{
+                    mymap.addLayer(refreshEagles);
+                    }
+                    // if(mymap.getZoom() >13){
+                    //      mymap.addLayer(lyrEagleNests);
+                    // }else{
+                    // mymap.removeLayer(lyrClientLines);
+                    // }
+ refreshEagles();
+                // refreshRaptors();
+                refreshLinears();
+
+                    // if (map.getZoom() <20){
+                    //     mymap.removeLayer(lyrClientLines); //2nd geoJSON layer
+                    // }else{
+                    //     map.addLayer(lyrEagleNests);
+                    // }
                 })
 
             });
+
+              // mymap.on('contextmenu', function(e) {
+              //   console.log(e);
+              //   alert(e.latlng.toString());
+              //      // if (mymap.getZoom() <6){
+              //      //      map.removeLayer(lyrEagleNests);//1st geoJSON layer
+              //      //  }else{
+              //      //    mymap.addLayer(job);
+              //      //     }
+              //      //  if (map.getZoom() <7){
+              //      //      map.removeLayer(job2); //2nd geoJSON layer
+              //      //  }else{
+              //      //  map.addLayer(job2);
+              //      //  }
+              //      //  if (map.getZoom() <8){
+              //      //      map.removeLayer(job3); //3rd geoJSON layer
+              //      //  }else{
+              //      //  map.addLayer(job3);
+              //      //  }
+              //    });
 
             //  ********* BUOWL Functions
 
@@ -641,7 +679,7 @@
                             lyrClientLinesBuffer.remove();
                         }
                         lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLinears, {style:styleClientLinears, onEachFeature:processClientLinears}).addTo(mymap);
+                        lyrClientLines = L.geoJSON(jsnLinears, {style:styleClientLinears, onEachFeature:processClientLinears});
                         ctlLayers.addOverlay(lyrClientLines, "Linear Projects");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindProject").autocomplete({
@@ -728,7 +766,7 @@
                             ctlLayers.removeLayer(lyrEagleNests);
                             lyrEagleNests.remove();
                         }
-                        lyrEagleNests = L.geoJSON(jsnEagles, {pointToLayer:returnEagleMarker, filter:filterEagle}).addTo(mymap);
+                        lyrEagleNests = L.geoJSON(jsnEagles, {pointToLayer:returnEagleMarker, filter:filterEagle});
                         ctlLayers.addOverlay(lyrEagleNests, "Eagle Nests");
                         arEagleIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
@@ -964,6 +1002,9 @@
             function stripSpaces(str) {
                 return str.replace(/\s+/g, '');
             }
+
+
+
 
          </script>
     </body>
