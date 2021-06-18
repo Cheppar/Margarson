@@ -91,28 +91,28 @@ echo"";
                                 y1="10"
                                 x2="40"
                                 y2="10"
-                                style="stroke: blue; stroke-width: 2"
+                                style="stroke: blue; stroke-width: 6"
                             />
                             <text
                                 x="50"
                                 y="15"
                                 style="font-family: sans-serif; font-size: 16px"
                             >
-                                Boundary
+                                District Boundary
                             </text>
                             <line
                                 x1="10"
                                 y1="40"
                                 x2="40"
                                 y2="40"
-                                style="stroke: pink; stroke-width: 2"
+                                style="stroke: black; stroke-width: 6"
                             />
                             <text
                                 x="50"
                                 y="45"
                                 style="font-family: sans-serif; font-size: 16px"
                             >
-                                Roads
+                                Sector Boundary
                             </text>
                             <div id="lgndRaptorNest">
                                 <div id="lgndRaptorDetail">
@@ -124,7 +124,7 @@ echo"";
                                             style="
                                                 stroke-width: 4;
                                                 stroke: deeppink;
-                                                fill: cyan;
+                                                fill: green;
                                                 fill-opacity: 0.5;
                                             "
                                         />
@@ -142,8 +142,8 @@ echo"";
                                             r="10"
                                             style="
                                                 stroke-width: 4;
-                                                stroke: cyan;
-                                                fill: cyan;
+                                                stroke: black;
+                                                fill: green;
                                                 fill-opacity: 0.5;
                                             "
                                         />
@@ -176,6 +176,7 @@ echo"";
             var lyrBagleNests;
             var lyrRaptorNests;
             var lyrClientLines;
+            var lyrSectorLines;
             var lyrClientLinesBuffer;
             var lyrBUOWL;
             var lyrBUOWLbuffer;
@@ -206,12 +207,12 @@ echo"";
 
                 mymap = L.map('mapdiv', {
                     center: [51.38, -2.35],
-                    zoom: 9,
+                    zoom: 11,
                     attributionControl: false,
                 });
 
-                mymap.options.minZoom = 9;
-                mymap.options.maxZoom = 19;
+                mymap.options.minZoom = 11;
+                mymap.options.maxZoom = 20;
 
                 ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
 
@@ -222,11 +223,11 @@ echo"";
                 ctlAttribute = L.control.attribution().addTo(mymap);
                 ctlAttribute.addAttribution('OSM');
                 ctlAttribute.addAttribution(
-                    '&copy; <a href="http://nakuplan.com">Godfrey Ejiofor</a>'
+                    '&copy; <a href="#">Electrolve UK</a>'
                 );
 
                 ctlScale = L.control
-                    .scale({ position: 'bottomleft', metric: false, maxWidth: 200 })
+                    .scale({ position: 'bottomleft', metric: false, maxWidth: 100 })
                     .addTo(mymap);
 
                 ctlMouseposition = L.control.mousePosition().addTo(mymap);
@@ -244,9 +245,9 @@ echo"";
 
                 //******* loading our database **********
 
-            refreshLinears();
-            refreshEagles();
-
+                refreshDist();
+                refreshEagles();
+                 refreshSectors();
 
                 // ********* Setup Layer Control  ***************
 
@@ -259,19 +260,34 @@ echo"";
 
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
+                 mymap.on('zoomend', function(e) {
+                    if (mymap.getZoom() < 11){
+                        mymap.addLayer(lyrClientLines);
+                         mymap.removeLayer(lyrSectorLines);
+                    }else{
+                         mymap.removeLayer(lyrSectorLines);
+                         mymap.removeLayer(lyrEagleNests);
+                    }
+                    if(mymap.getZoom() >= 13){
+                         mymap.addLayer(lyrSectorLines);
+                    }else{
+                        mymap.addLayer(lyrClientLines);
+                    }
+
+                });
 
             // ************ Client Linears **********
            function processClientLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
-             arProjectIDs.push(att.layer.toString());
+             lyr.bindPopup("<h4>District: "+att.postdist+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
+             arProjectIDs.push(att.postdist.toString());
 
             }
 
-            function refreshLinears() {
+            function refreshDist() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl: 'merged', flds: 'id' },
+                        data: { tbl: 'dist_swengland', flds: 'distid, postdist, postarea, x, y' , where:"postarea='BA'"},
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];
@@ -283,13 +299,56 @@ echo"";
                             }
                             lyrClientLinesBuffer = L.featureGroup();
                             lyrClientLines = L.geoJSON(jsnLinears, {
-                                color: 'black',
+                                color: 'blue',
                                 dashArray: '5,5',
                                 fillOpacity: 0,
                                 opacity: 0.5,
                                 onEachFeature: processClientLinears,
                             }).addTo(mymap);
-                            ctlLayers.addOverlay(lyrClientLines, 'Boundary');
+                            ctlLayers.addOverlay(lyrClientLines, 'District');
+                            arProjectIDs.sort(function (a, b) {
+                                return a - b;
+                            });
+                            $('#txtFindEagle').autocomplete({
+                                source: arProjectIDs,
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            alert('ERROR: ' + error);
+                        },
+                    });
+                }
+
+
+            // ************ Sectors Linears **********
+            function processSectorLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Sector: "+att.rmsect+"</h4>");
+             arProjectIDs.push(att.postdist.toString());
+            }
+
+            function refreshSectors() {
+                    $.ajax({
+                        url: 'load_allpostcodes.php',
+                        data: { tbl:'sect_bath', flds: 'sectid, rmsect, postdist, postarea, x, y' },
+                        type: 'GET',
+                        success: function (response) {
+                            arProjectIDs = [];
+                            jsnSectors = JSON.parse(response);
+                            if (lyrSectorLines) {
+                                ctlLayers.removeLayer(lyrSectorLines);
+                                lyrSectorLines.remove();
+
+                            }
+
+                            lyrSectorLines = L.geoJSON(jsnSectors, {
+                                color: 'black',
+                                dashArray: '5,5',
+                                fillOpacity: 0,
+                                opacity: 0.5,
+                                onEachFeature: processSectorLinears,
+                            }).addTo(mymap);
+                            ctlLayers.addOverlay(lyrSectorLines, 'Sector');
                             arProjectIDs.sort(function (a, b) {
                                 return a - b;
                             });

@@ -177,6 +177,7 @@ echo "";
             var lyrRaptorNests;
             var lyrClientLines;
             var lyrClientLinesBuffer;
+            var lyrSectorLines;
             var lyrBUOWL;
             var lyrBUOWLbuffer;
             var jsnBUOWLbuffer;
@@ -246,18 +247,16 @@ echo "";
                 fgpDrawnItems.addTo(mymap);
 
                 //******* loading our database **********
-
-               refreshLinears();
+                 refreshDist();
+                refreshSectors();
                 refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
                 objBasemaps = {
                     'Open Street Maps': lyrOSM,
-                    'Topo Map': lyrTopo,
                     Imagery: lyrImagery,
-                    Outdoors: lyrOutdoors,
-                    Watercolor: lyrWatercolor,
+
                 };
 
                 objOverlays = {};
@@ -265,17 +264,17 @@ echo "";
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
                 // ************ Client Linears **********
-            function processClientLinears(json, lyr) {
+           function processClientLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>").addTo(mymap);
-             arProjectIDs.push(att.layer.toString());
+             lyr.bindPopup("<h4>District: "+att.postdist+"</h4>  ").addTo(mymap);
+             arProjectIDs.push(att.postdist.toString());
 
             }
 
-            function refreshLinears() {
+            function refreshDist() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl: 'merged', flds: 'id' },
+                        data: { tbl:'postaldistrict', flds: 'distid, postdist, postarea, x, y', where:"postarea='BD'" },
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];
@@ -287,13 +286,63 @@ echo "";
                             }
                             lyrClientLinesBuffer = L.featureGroup();
                             lyrClientLines = L.geoJSON(jsnLinears, {
-                                color: 'black',
+                                color: 'blue',
                                 dashArray: '5,5',
                                 fillOpacity: 0,
                                 opacity: 0.5,
                                 onEachFeature: processClientLinears,
                             }).addTo(mymap);
-                            ctlLayers.addOverlay(lyrClientLines, 'Boundary');
+                            ctlLayers.addOverlay(lyrClientLines, 'District');
+                            arProjectIDs.sort(function (a, b) {
+                                return a - b;
+                            });
+                            $('#txtFindEagle').autocomplete({
+                                source: arProjectIDs,
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            alert('ERROR: ' + error);
+                        },
+                    });
+                }
+                // *********  Section Functions *****************
+             function processSectorLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Sector: "+att.strsect+"</h4>");
+             arProjectIDs.push(att.postdist.toString());
+
+            }
+
+                 // *********  Section Functions *****************
+             function processSectorLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Sector: "+att.strsect+"</h4>");
+             arProjectIDs.push(att.postdist.toString());
+
+            }
+
+            function refreshSectors() {
+                    $.ajax({
+                        url: 'load_allpostcodes.php',
+                        data: { tbl:'postalsectors', flds: 'sectid, strsect, postdist, postarea, x, y' , where:"postarea='AB'" },
+                        type: 'GET',
+                        success: function (response) {
+                            arProjectIDs = [];
+                            jsnSectors = JSON.parse(response);
+                            if (lyrSectorLines) {
+                                ctlLayers.removeLayer(lyrSectorLines);
+                                lyrSectorLines.remove();
+
+                            }
+
+                            lyrSectorLines = L.geoJSON(jsnSectors, {
+                                color: 'black',
+                                dashArray: '5,5',
+                                fillOpacity: 0,
+                                opacity: 0.1,
+                                onEachFeature: processSectorLinears,
+                            }).addTo(mymap);
+                            ctlLayers.addOverlay(lyrSectorLines, 'Sector');
                             arProjectIDs.sort(function (a, b) {
                                 return a - b;
                             });

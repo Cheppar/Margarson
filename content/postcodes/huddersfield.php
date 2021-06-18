@@ -204,7 +204,7 @@
             function refreshDist() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl:'dist_hudders', flds: 'distid, postdist, postarea, x, y' },
+                        data: { tbl:'postaldistrict', flds: 'distid, postdist, postarea, x, y' , where:"postarea='AB'"},
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];

@@ -244,37 +244,54 @@ echo "";
                 fgpDrawnItems = new L.FeatureGroup();
                 fgpDrawnItems.addTo(mymap);
 
-                //******* loading our database **********
-                // refreshEagles();
-                refreshLinears();
+                  //******* loading our database **********
+                refreshSectors();
+                refreshDist();
                 refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
-                objBasemaps = {
-                    'Open Street Maps': lyrOSM,
-                    Imagery: lyrImagery,
+               objBasemaps = {
+                    "Open Street Maps": lyrOSM,
+                    "Imagery":lyrImagery,
                 };
 
-                objOverlays = {};
+                objOverlays = {
+
+                };
 
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
-                // ************ Client Linears **********
+                  mymap.on('zoomend', function(e) {
+                    if (mymap.getZoom() < 11){
+                        mymap.addLayer(lyrClientLines);
+                         mymap.removeLayer(lyrSectorLines);
+                    }else{
+
+                         mymap.removeLayer(lyrEagleNests);
+                    }
+                    if(mymap.getZoom() >= 13){
+                         mymap.addLayer(lyrSectorLines);
+
+                    }else{
+                        mymap.addLayer(lyrClientLines);
+                    }
 
 
-                function processClientLinears(json, lyr) {
-                 var att = json.properties;
-                 lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>")
-                 .addTo(mymap);
-                 arProjectIDs.push(att.layer.toString());
+                });
 
-                }
+            // ************ Client Linears **********
+           function processClientLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>District: "+att.postdist+"</h4> ");
+             arProjectIDs.push(att.postdist.toString());
 
-            function refreshLinears() {
+            }
+
+            function refreshDist() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl: 'merged', flds: 'layer' },
+                        data: { tbl: 'dist_swengland', flds: 'distid, postdist, postarea, x, y' , where:"postarea='BS'"},
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];
@@ -286,13 +303,14 @@ echo "";
                             }
                             lyrClientLinesBuffer = L.featureGroup();
                             lyrClientLines = L.geoJSON(jsnLinears, {
-                                color: 'black',
+                                color: 'blue',
                                 dashArray: '5,5',
                                 fillOpacity: 0,
                                 opacity: 0.5,
                                 onEachFeature: processClientLinears,
                             }).addTo(mymap);
-                            ctlLayers.addOverlay(lyrClientLines, 'Boundary');
+
+                            ctlLayers.addOverlay(lyrClientLines, 'District');
                             arProjectIDs.sort(function (a, b) {
                                 return a - b;
                             });
@@ -305,6 +323,50 @@ echo "";
                         },
                     });
                 }
+
+
+            // ************ Sectors Linears **********
+            function processSectorLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Sector: "+att.rmsect+"</h4>");
+             arProjectIDs.push(att.postdist.toString());
+            }
+
+            function refreshSectors() {
+                    $.ajax({
+                        url: 'load_allpostcodes.php',
+                        data: { tbl:'sect_dorchester', flds: 'sectid, rmsect, postdist, postarea, x, y' },
+                        type: 'GET',
+                        success: function (response) {
+                            arProjectIDs = [];
+                            jsnSectors = JSON.parse(response);
+                            if (lyrSectorLines) {
+                                ctlLayers.removeLayer(lyrSectorLines);
+                                lyrSectorLines.remove();
+
+                            }
+
+                            lyrSectorLines = L.geoJSON(jsnSectors, {
+                                color: 'black',
+                                dashArray: '5,5',
+                                fillOpacity: 0,
+                                opacity: 0.5,
+                                onEachFeature: processSectorLinears,
+                            }) ;
+                            ctlLayers.addOverlay(lyrSectorLines, 'Sector');
+                            arProjectIDs.sort(function (a, b) {
+                                return a - b;
+                            });
+                            $('#txtFindEagle').autocomplete({
+                                source: arProjectIDs,
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            alert('ERROR: ' + error);
+                        },
+                    });
+                }
+
                 // *********  Eagle Functions *****************
 
                 function returnEagleMarker(json, latlng) {
