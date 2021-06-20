@@ -177,6 +177,7 @@ echo "";
             var lyrBagleNests;
             var lyrRaptorNests;
             var lyrClientLines;
+            var lyrSectorLines;
             var lyrClientLinesBuffer;
             var lyrBUOWL;
             var lyrBUOWLbuffer;
@@ -244,8 +245,8 @@ echo "";
                 fgpDrawnItems.addTo(mymap);
 
                 //******* loading our database **********
-
-                refreshLinears();
+                refreshSectors();
+                refreshDist();
                 refreshEagles();
 
                 // ********* Setup Layer Control  ***************
@@ -259,6 +260,23 @@ echo "";
 
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
+                  mymap.on('zoomend', function(e) {
+                    if (mymap.getZoom() < 11){
+                        mymap.addLayer(lyrClientLines);
+                         mymap.removeLayer(lyrSectorLines);
+                    }else{
+
+                         mymap.removeLayer(lyrEagleNests);
+                    }
+                    if(mymap.getZoom() >= 12){
+                         mymap.addLayer(lyrSectorLines);
+
+                    }else{
+                        mymap.addLayer(lyrClientLines);
+                    }
+
+                });
+
                 // ************ Client Linears **********
            function processClientLinears(json, lyr) {
                 var att = json.properties;
@@ -270,7 +288,7 @@ echo "";
             function refreshDist() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl: 'dist_eastern', flds: 'distid, postdist, postarea, x, y' , where:"postarea='CB'"},
+                        data: { tbl: 'dist_eastern', flds: 'distid, postdist, postarea, x, y' , where:"postarea='CO'"},
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];
@@ -313,7 +331,7 @@ echo "";
             function refreshSectors() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl:'sect_cambridge', flds: 'sectid, rmsect, postdist, postarea, x, y' },
+                        data: { tbl:'sect_colchester', flds: 'sectid, rmsect, postdist, postarea, x, y' },
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];
