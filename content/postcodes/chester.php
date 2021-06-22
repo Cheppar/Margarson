@@ -71,40 +71,44 @@
         </style>
     </head>
     <body>
-        <div id="side-bar" class="col-md-3">
-            <button id='btnLocat' class='btn btn-primary btn-block'>Locate</button>
-            <button id="btnShowLegend" class='btn btn-primary btn-block'>Show Legend</button>
+         <div id="side-bar" class="col-md-3">
+            <button id="btnLocat" class="btn btn-primary btn-block">Locate</button>
+            <button id="btnShowLegend" class="btn btn-primary btn-block">
+                Show Legend
+            </button>
             <div id="legend">
                 <div id="lgndClientLinears">
-                    <h4 class="text-center">Linear Boundary<i id="btnLinearProjects"></i></h4>
+                    <h4 class="text-center">
+                        Linear Boundary<i id="btnLinearProjects"></i>
+                    </h4>
                     <div id="lgndLinearProjectsDetail">
                         <svg height="50" width="100%">
-                            <line x1="10" y1="10" x2="40" y2="10" style="stroke:blue; stroke-width:2;"/>
-                            <text x="50" y="15" style="font-family:sans-serif; font-size:16px;">Boundary</text>
-                            <line x1="10" y1="40" x2="40" y2="40" style="stroke:pink; stroke-width:2;"/>
-                            <text x="50" y="45" style="font-family:sans-serif; font-size:16px;">Roads</text>
-                           <div id="lgndRaptorNest">
+                            <line x1="10"  y1="10"  x2="40" y2="10" style="stroke: blue; stroke-width: 6" />
+                            <text x="50" y="15" style="font-family: sans-serif; font-size: 16px">
+                                District Boundary
+                            </text>
+                            <line x1="10" y1="40" x2="40" y2="40" style="stroke: black; stroke-width: 6" />
+                            <text  x="50" y="45" style="font-family: sans-serif; font-size: 16px">
+                                Sector Boundary
+                            </text>
+                            <div id="lgndRaptorNest">
+                                <div id="lgndRaptorDetail">
+                                    <svg height="100">
+                                        <circle cx="25" cy="15"  r="10" style="stroke-width: 4; stroke: deeppink; fill: green; fill-opacity: 0.5; "/>
+                                        <text
+                                            x="50" y="20" style="font-family: sans-serif; font-size: 16px">Live Addresses
+                                        </text>
 
-
-                    <div id="lgndRaptorDetail">
-                        <svg height="100">
-                            <circle cx="25" cy="15" r="10" style="stroke-width: 4; stroke: deeppink; fill: cyan; fill-opacity:0.5;"/>
-                            <text x="50" y="20" style="font-family: sans-serif; font-size: 16px;">Live Addresses</text>
-
-                            <circle cx="25" cy="75" r="10" style="stroke-width: 4; stroke: black; fill: green; fill-opacity:0.5;"/>
-                            <text x="50" y="80" style="font-family: sans-serif; font-size: 16px;">Terminated</text>
-                        </svg>
-                    </div>
-                </div>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-                </div>
-
-
-
-
+                                        <circle
+                                            cx="25"cy="75" r="10" style="stroke-width: 4; stroke: black; fill: green;  fill-opacity: 0.5; " />
+                                        <text x="50"  y="80" style="font-family: sans-serif; font-size: 16px"> Terminated </text> </svg>
+                                        </div>
+                                         </div>
+                                     </svg>
+                                     </div>
+                                      </div>
+                                  </div>
+                              </div>
 
 
         <div id="mapdiv" class="col-md-12"></div>
@@ -120,6 +124,7 @@
             var lyrBagleNests;
             var lyrRaptorNests;
             var lyrClientLines;
+            var lyrSectorLines;
             var lyrClientLinesBuffer;
             var lyrBUOWL;
             var lyrBUOWLbuffer;
@@ -180,37 +185,50 @@
                 fgpDrawnItems.addTo(mymap);
 
                 //******* loading our database **********
-
-                refreshLinears();
-               refreshEagles();
+                refreshDist();
+                refreshSectors();
+                refreshEagles();
 
                 // ********* Setup Layer Control  ***************
 
                 objBasemaps = {
-                    "Open Street Maps": lyrOSM,
-                    "Imagery":lyrImagery,
+                    'Open Street Maps': lyrOSM,
+                    Imagery: lyrImagery,
                 };
 
-                objOverlays = {
-
-                };
+                objOverlays = {};
 
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
+                 mymap.on('zoomend', function(e) {
+                    if (mymap.getZoom() < 11){
+                        mymap.addLayer(lyrClientLines);
+                         mymap.removeLayer(lyrSectorLines);
+                    }else{
 
-            // ************ Client Linears **********
-  function processClientLinears(json, lyr) {
-                 var att = json.properties;
-                 lyr.bindPopup("<h4>Area Postcode: "+att.layer+"</h4> District Postcode: "+att.name+"<br>")
-                 .addTo(mymap);
-                 arProjectIDs.push(att.layer.toString());
+                         mymap.removeLayer(lyrEagleNests);
+                    }
+                    if(mymap.getZoom() >= 12){
+                         mymap.addLayer(lyrSectorLines);
 
-                }
+                    }else{
+                        mymap.addLayer(lyrClientLines);
+                    }
 
-            function refreshLinears() {
+                });
+
+                 // ************ Client Linears **********
+           function processClientLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>District: "+att.postdist+"</h4>").addTo(mymap);
+             arProjectIDs.push(att.postdist.toString());
+
+            }
+
+            function refreshDist() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl: 'merged', flds: 'id' },
+                        data: { tbl: 'dist_northwesteuro', flds: 'distid, postdist, postarea, x, y' , where:"postarea='CH'"},
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];
@@ -222,13 +240,13 @@
                             }
                             lyrClientLinesBuffer = L.featureGroup();
                             lyrClientLines = L.geoJSON(jsnLinears, {
-                                color: 'black',
+                                color: 'blue',
                                 dashArray: '5,5',
                                 fillOpacity: 0,
                                 opacity: 0.5,
                                 onEachFeature: processClientLinears,
                             }).addTo(mymap);
-                            ctlLayers.addOverlay(lyrClientLines, 'Boundary');
+                            ctlLayers.addOverlay(lyrClientLines, 'District');
                             arProjectIDs.sort(function (a, b) {
                                 return a - b;
                             });
@@ -241,11 +259,53 @@
                         },
                     });
                 }
+
+
+            // ************ Sectors Linears **********
+            function processSectorLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Sector: "+att.rmsect+"</h4>");
+             arProjectIDs.push(att.rmsect.toString());
+            }
+
+            function refreshSectors() {
+                    $.ajax({
+                        url: 'load_allpostcodes.php',
+                        data: { tbl:'sect_chester', flds: 'sectid, strsect, rmsect, postdist, postarea, x, y' },
+                        type: 'GET',
+                        success: function (response) {
+                            arProjectIDs = [];
+                            jsnSectors = JSON.parse(response);
+                            if (lyrSectorLines) {
+                                ctlLayers.removeLayer(lyrSectorLines);
+                                lyrSectorLines.remove();
+
+                            }
+
+                            lyrSectorLines = L.geoJSON(jsnSectors, {
+                                color: 'black',
+                                dashArray: '5,5',
+                                fillOpacity: 0,
+                                opacity: 0.5,
+                                onEachFeature: processSectorLinears,
+                            }) ;
+                            ctlLayers.addOverlay(lyrSectorLines, 'Sector');
+                            arProjectIDs.sort(function (a, b) {
+                                return a - b;
+                            });
+                            $('#txtFindEagle').autocomplete({
+                                source: arProjectIDs,
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            alert('ERROR: ' + error);
+                        },
+                    });
+                }
+
+
             // *********  Eagle Functions *****************
-
-
-
-            function returnEagleMarker(json, latlng){
+           function returnEagleMarker(json, latlng){
                 var att = json.properties;
                 if (att.field_2=='live') {
                     var clrNest = 'deeppink';
@@ -306,40 +366,6 @@
                     }
                 });
             }
-
-            //  function refreshPagles(){
-            //     $.ajax({url:'load_allpostcodes.php',
-            //         data: {tbl:'bath', flds:'field_1, field_2, field_3, field_4, field_5'},
-            //         type: 'GET',
-            //         success: function(response){
-            //             arEagleIDs=[];
-            //             jsnPagles = JSON.parse(response);
-            //             if(lyrPagleNests){
-            //                 ctlLayers.removeLayer(lyrPaglesNests);
-            //                 ctlLayers.removeLayer(lyrMarkerCluster);
-            //                 lyrPagleNests.remove();
-            //             }
-            //             lyrPagleNests = L.geoJSON(jsnPagles,
-            //             { onEachFeature:processPcodemarker, pointToLayer:returnEagleMarker, filter:filterEagle});
-            //         ctlLayers.addOverlay(lyrPagleNests, "Post Codes");
-            //         arEagleIDs.sort(function(a,b){return a-b});
-            //         $("#txtFindEagle").autocomplete({
-            //             source:arEagleIDs
-            //         });
-            //         lyrMarkerCluster = L.markerClusterGroup();
-            //             lyrMarkerCluster.clearLayers();
-            //             lyrMarkerCluster.addLayer(lyrPagleNests);
-            //             lyrMarkerCluster.addTo(mymap);
-            //             ctlLayers.addOverlay(lyrMarkerCluster, "BOLTON");
-            //         },
-            //         error: function(xhr, status, error){
-            //             alert("ERROR: "+error);
-            //         }
-            //     });
-            // }
-
-
-
 
 
             //  ***********  General Functions *********

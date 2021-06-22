@@ -74,7 +74,7 @@ echo "";
         </style>
     </head>
     <body>
-        <div id="side-bar" class="col-md-3">
+       <div id="side-bar" class="col-md-3">
             <button id="btnLocat" class="btn btn-primary btn-block">Locate</button>
             <button id="btnShowLegend" class="btn btn-primary btn-block">
                 Show Legend
@@ -86,82 +86,32 @@ echo "";
                     </h4>
                     <div id="lgndLinearProjectsDetail">
                         <svg height="50" width="100%">
-                            <line
-                                x1="10"
-                                y1="10"
-                                x2="40"
-                                y2="10"
-                                style="stroke: blue; stroke-width: 2"
-                            />
-                            <text
-                                x="50"
-                                y="15"
-                                style="font-family: sans-serif; font-size: 16px"
-                            >
-                                Boundary
+                            <line x1="10"  y1="10"  x2="40" y2="10" style="stroke: blue; stroke-width: 6" />
+                            <text x="50" y="15" style="font-family: sans-serif; font-size: 16px">
+                                District Boundary
                             </text>
-                            <line
-                                x1="10"
-                                y1="40"
-                                x2="40"
-                                y2="40"
-                                style="stroke: pink; stroke-width: 2"
-                            />
-                            <text
-                                x="50"
-                                y="45"
-                                style="font-family: sans-serif; font-size: 16px"
-                            >
-                                Roads
+                            <line x1="10" y1="40" x2="40" y2="40" style="stroke: black; stroke-width: 6" />
+                            <text  x="50" y="45" style="font-family: sans-serif; font-size: 16px">
+                                Sector Boundary
                             </text>
                             <div id="lgndRaptorNest">
                                 <div id="lgndRaptorDetail">
                                     <svg height="100">
-                                        <circle
-                                            cx="25"
-                                            cy="15"
-                                            r="10"
-                                            style="
-                                                stroke-width: 4;
-                                                stroke: deeppink;
-                                                fill: cyan;
-                                                fill-opacity: 0.5;
-                                            "
-                                        />
+                                        <circle cx="25" cy="15"  r="10" style="stroke-width: 4; stroke: deeppink; fill: green; fill-opacity: 0.5; "/>
                                         <text
-                                            x="50"
-                                            y="20"
-                                            style="font-family: sans-serif; font-size: 16px"
-                                        >
-                                            Live Addresses
+                                            x="50" y="20" style="font-family: sans-serif; font-size: 16px">Live Addresses
                                         </text>
 
                                         <circle
-                                            cx="25"
-                                            cy="75"
-                                            r="10"
-                                            style="
-                                                stroke-width: 4;
-                                                stroke: cyan;
-                                                fill: cyan;
-                                                fill-opacity: 0.5;
-                                            "
-                                        />
-                                        <text
-                                            x="50"
-                                            y="80"
-                                            style="font-family: sans-serif; font-size: 16px"
-                                        >
-                                            Terminated
-                                        </text>
-                                    </svg>
-                                </div>
-                            </div>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
+                                            cx="25"cy="75" r="10" style="stroke-width: 4; stroke: black; fill: green;  fill-opacity: 0.5; " />
+                                        <text x="50"  y="80" style="font-family: sans-serif; font-size: 16px"> Terminated </text> </svg>
+                                        </div>
+                                         </div>
+                                     </svg>
+                                     </div>
+                                      </div>
+                                  </div>
+                              </div>
 
         <div id="mapdiv" class="col-md-12"></div>
         <script>
@@ -176,6 +126,7 @@ echo "";
             var lyrBagleNests;
             var lyrRaptorNests;
             var lyrClientLines;
+            var lyrSectorLines;
             var lyrClientLinesBuffer;
             var lyrSectorLines;
             var lyrBUOWL;
@@ -262,11 +213,27 @@ echo "";
                 objOverlays = {};
 
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
+ mymap.on('zoomend', function(e) {
+                    if (mymap.getZoom() < 11){
+                        mymap.addLayer(lyrClientLines);
+                         mymap.removeLayer(lyrSectorLines);
+                    }else{
 
-                // ************ Client Linears **********
+                         mymap.removeLayer(lyrEagleNests);
+                    }
+                    if(mymap.getZoom() >= 12){
+                         mymap.addLayer(lyrSectorLines);
+
+                    }else{
+                        mymap.addLayer(lyrClientLines);
+                    }
+
+                });
+
+                 // ************ Client Linears **********
            function processClientLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>District: "+att.postdist+"</h4>  ").addTo(mymap);
+             lyr.bindPopup("<h4>District: "+att.postdist+"</h4>").addTo(mymap);
              arProjectIDs.push(att.postdist.toString());
 
             }
@@ -274,7 +241,7 @@ echo "";
             function refreshDist() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl:'postaldistrict', flds: 'distid, postdist, postarea, x, y', where:"postarea='BD'" },
+                        data: { tbl: 'dist_yorkshirehumber', flds: 'distid, postdist, postarea, x, y' , where:"postarea='BD'"},
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];
@@ -305,26 +272,19 @@ echo "";
                         },
                     });
                 }
-                // *********  Section Functions *****************
-             function processSectorLinears(json, lyr) {
+
+
+            // ************ Sectors Linears **********
+            function processSectorLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Sector: "+att.strsect+"</h4>");
+             lyr.bindPopup("<h4>Sector: "+att.rmsect+"</h4>");
              arProjectIDs.push(att.postdist.toString());
-
-            }
-
-                 // *********  Section Functions *****************
-             function processSectorLinears(json, lyr) {
-                var att = json.properties;
-             lyr.bindPopup("<h4>Sector: "+att.strsect+"</h4>");
-             arProjectIDs.push(att.postdist.toString());
-
             }
 
             function refreshSectors() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl:'postalsectors', flds: 'sectid, strsect, postdist, postarea, x, y' , where:"postarea='AB'" },
+                        data: { tbl:'sect_bradford', flds: 'sectid, rmsect, postdist, postarea, x, y' },
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];
@@ -339,9 +299,9 @@ echo "";
                                 color: 'black',
                                 dashArray: '5,5',
                                 fillOpacity: 0,
-                                opacity: 0.1,
+                                opacity: 0.5,
                                 onEachFeature: processSectorLinears,
-                            }).addTo(mymap);
+                            }) ;
                             ctlLayers.addOverlay(lyrSectorLines, 'Sector');
                             arProjectIDs.sort(function (a, b) {
                                 return a - b;

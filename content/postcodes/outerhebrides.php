@@ -1,8 +1,11 @@
+<?php
+echo"";
+?>
 <!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<title>Huddersfield HD</title>
+		<title>Outerhebrides HS</title>
 		<link rel="stylesheet" href="src/leaflet.css" />
 		<link rel="stylesheet" href="src/css/bootstrap.css" />
 		<link rel="stylesheet" href="src/plugins/L.Control.MousePosition.css" />
@@ -71,7 +74,7 @@
 		</style>
 	</head>
 	<body>
-		<div id="side-bar" class="col-md-3">
+		  <div id="side-bar" class="col-md-3">
             <button id="btnLocat" class="btn btn-primary btn-block">Locate</button>
             <button id="btnShowLegend" class="btn btn-primary btn-block">
                 Show Legend
@@ -110,9 +113,6 @@
                                   </div>
                               </div>
 
-
-		</div>
-
 		<div id="mapdiv" class="col-md-12"></div>
 		<script>
 			var mymap;
@@ -125,8 +125,9 @@
 			var lyrPagleNests;
 			var lyrBagleNests;
 			var lyrRaptorNests;
-			var lyrSectorLines;
 			var lyrClientLines;
+			var lyrSectorLines;
+			var lyrSectorLines;
 			var lyrClientLinesBuffer;
 			var lyrBUOWL;
 			var lyrBUOWLbuffer;
@@ -156,13 +157,10 @@
 				//  ********* Map Initialization ****************
 
 				mymap = L.map('mapdiv', {
-					center: [53.67, -1.78],
-					zoom: 11,
+					center: [58.2, -6.38],
+					zoom: 9,
 					attributionControl: false,
 				});
-
-				mymap.options.minZoom = 10;
-                mymap.options.maxZoom = 19;
 
 				ctlSidebar = L.control.sidebar('side-bar').addTo(mymap);
 
@@ -173,7 +171,7 @@
 				ctlAttribute = L.control.attribution().addTo(mymap);
 				ctlAttribute.addAttribution('OSM');
 				ctlAttribute.addAttribution(
-					'&copy; <a href="">Margarson UK</a>'
+					'&copy; <a href="http://nakuplan.com">Godfrey Ejiofor</a>'
 				);
 
 				ctlScale = L.control
@@ -184,35 +182,32 @@
 
 				ctlMeasure = L.control.polylineMeasure().addTo(mymap);
 
-				//   *********** Layer Initialization **********
+ 				//   *********** Layer Initialization **********
 
-				lyrOSM = L.tileLayer.provider('OpenStreetMap.Mapnik');
-				lyrImagery = L.tileLayer.provider('Esri.WorldImagery');
-				mymap.addLayer(lyrOSM);
+                lyrOSM = L.tileLayer.provider('OpenStreetMap.Mapnik');
+                lyrImagery = L.tileLayer.provider('Esri.WorldImagery');
+                mymap.addLayer(lyrOSM);
 
-				fgpDrawnItems = new L.FeatureGroup();
-				fgpDrawnItems.addTo(mymap);
+                fgpDrawnItems = new L.FeatureGroup();
+                fgpDrawnItems.addTo(mymap);
 
-				//******* loading our database **********
-				// refreshEagles();
-				refreshDist();
-				refreshEagles();
-				refreshSectors();
+                 //******* loading our database **********
+                refreshDist();
+                refreshSectors();
+                refreshEagles();
 
+                // ********* Setup Layer Control  ***************
 
-				// ********* Setup Layer Control  ***************
-
-				 objBasemaps = {
-                    "Open Street Maps": lyrOSM,
-                    "Imagery":lyrImagery,
-
+                objBasemaps = {
+                    'Open Street Maps': lyrOSM,
+                    Imagery: lyrImagery,
                 };
 
-				objOverlays = {};
+                objOverlays = {};
 
-				ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
+                ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
-				mymap.on('zoomend', function(e) {
+                 mymap.on('zoomend', function(e) {
                     if (mymap.getZoom() < 11){
                         mymap.addLayer(lyrClientLines);
                          mymap.removeLayer(lyrSectorLines);
@@ -229,7 +224,7 @@
 
                 });
 
-        // ************ Client Linears **********
+                 // ************ Client Linears **********
            function processClientLinears(json, lyr) {
                 var att = json.properties;
              lyr.bindPopup("<h4>District: "+att.postdist+"</h4>").addTo(mymap);
@@ -240,7 +235,7 @@
             function refreshDist() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl: 'dist_yorkshirehumber', flds: 'distid, postdist, postarea, x, y' , where:"postarea='HD'"},
+                        data: { tbl: 'dist_scotland', flds: 'distid, postdist, postarea, x, y' , where:"postarea='HS'"},
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];
@@ -276,14 +271,14 @@
             // ************ Sectors Linears **********
             function processSectorLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Sector: "+att.rmsect+"</h4>");
+             lyr.bindPopup("<h4>Sector: "+att.strsect+"</h4>");
              arProjectIDs.push(att.postdist.toString());
             }
 
             function refreshSectors() {
                     $.ajax({
                         url: 'load_allpostcodes.php',
-                        data: { tbl:'sect_huddersfield', flds: 'sectid, rmsect, postdist, postarea, x, y' },
+                        data: { tbl:'sect_outerhebrides', flds: 'sectid, strsect, rmsect, postdist, postarea, x, y' },
                         type: 'GET',
                         success: function (response) {
                             arProjectIDs = [];
@@ -343,7 +338,7 @@
 				function processBaglemarker(json, lyr) {
 					var att = json.properties;
 					lyr
-						.bindTooltip('<h4>District: ' + att.field_1 + '</h4>')
+						.bindTooltip('<h4>Post Code: ' + att.field_1 + '</h4>')
 						.openPopup();
 				}
 
@@ -360,7 +355,7 @@
 				function refreshEagles() {
 					$.ajax({
 						url: 'load_allpostcodes.php',
-						data: { tbl:'huddersfield', flds:'id, field_1, field_2, field_3, field_4, field_5' },
+						data: { tbl:'outerhebrides', flds: 'id, field_1, field_2, field_3, field_4, field_5' },
 						type: 'GET',
 						success: function (response) {
 							arEagleIDs = [];
