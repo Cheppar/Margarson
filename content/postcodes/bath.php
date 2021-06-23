@@ -260,18 +260,18 @@ echo"";
 
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
-                 mymap.on('zoomend', function(e) {
+                mymap.on('zoomend', function(e) {
                     if (mymap.getZoom() < 11){
                         mymap.addLayer(lyrClientLines);
                          mymap.removeLayer(lyrSectorLines);
                     }else{
-                         mymap.removeLayer(lyrSectorLines);
-                         mymap.removeLayer(lyrEagleNests);
+
                     }
-                    if(mymap.getZoom() >= 13){
+                    if(mymap.getZoom() >= 12){
                          mymap.addLayer(lyrSectorLines);
+
                     }else{
-                        mymap.addLayer(lyrClientLines);
+                        mymap.removeLayer(lyrClientLines);
                     }
 
                 });
