@@ -215,7 +215,6 @@ echo "";
                          mymap.removeLayer(lyrSectorLines);
                     }else{
 
-                         mymap.removeLayer(lyrEagleNests);
                     }
                     if(mymap.getZoom() >= 12){
                          mymap.addLayer(lyrSectorLines);

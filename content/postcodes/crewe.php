@@ -306,67 +306,82 @@
 
 
             // *********  Eagle Functions *****************
-            function returnEagleMarker(json, latlng){
-                var att = json.properties;
-                if (att.field_2=='live') {
-                    var clrNest = 'deeppink';
-                } else {
-                    var clrNest = 'black';
-                }
-
-                arEagleIDs.push(att.field_2.toString());
-                return L.circle(latlng, {radius:1, color:clrNest,fillColor:'chartreuse', fillOpacity:0.5});
-            }
-
-            function processPcodemarker(json,lyr){
-                var att = json.properties;
-                lyr.bindTooltip("<h4>Post Code: "+att.field_1+"</h4> Status : "+att.field_2+" <br> Type : "+att.field_3).openPopup();
-            }
-            function processBaglemarker(json,lyr){
-                var att = json.properties;
-                lyr.bindTooltip("<h4>Post Code: "+att.field_1+"</h4>").openPopup();
-            }
-
-            function filterEagle(json) {
-                var att=json.properties;
-                var optFilter = $("input[name=fltEagle]:checked").val();
-                if (optFilter=='ALL') {
-                    return true;
-                } else {
-                    return (att.status==optFilter);
-                }
-            }
-
-             function refreshEagles(){
-                $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'crewecw' , flds:'field_1, field_2, field_3, field_4, field_5'},
-                    type: 'GET',
-                    success: function(response){
-                        arEagleIDs=[];
-                        jsnEagles = JSON.parse(response);
-                        if(lyrEagleNests){
-                            ctlLayers.removeLayer(lyrEagleNests);
-                            ctlLayers.removeLayer(lyrMarkerCluster);
-                            lyrEagleNests.remove();
-                        }
-                        lyrEagleNests = L.geoJSON(jsnEagles,
-                        { onEachFeature:processPcodemarker, pointToLayer:returnEagleMarker, filter:filterEagle});
-
-                    arEagleIDs.sort(function(a,b){return a-b});
-                    $("#txtFindEagle").autocomplete({
-                        source:arEagleIDs
-                    });
-                    lyrMarkerCluster = L.markerClusterGroup();
-                        lyrMarkerCluster.clearLayers();
-                        lyrMarkerCluster.addLayer(lyrEagleNests);
-                        lyrMarkerCluster.addTo(mymap);
-                        ctlLayers.addOverlay(lyrMarkerCluster, "Post codes");
-                    },
-                    error: function(xhr, status, error){
-                        alert("ERROR: "+error);
+            function returnEagleMarker(json, latlng) {
+                    var att = json.properties;
+                    if (att.field_2 == 'live') {
+                        var clrNest = 'deeppink';
+                    } else {
+                        var clrNest = 'black';
                     }
-                });
-            }
+
+                    arEagleIDs.push(att.field_2.toString());
+                    return L.circle(latlng, {
+                        radius: 2,
+                        color: clrNest,
+                        fillColor: 'chartreuse',
+                        fillOpacity: 0.5,
+                    });
+                }
+
+                function processPcodemarker(json, lyr) {
+                    var att = json.properties;
+                    lyr
+                        .bindTooltip('<h4>Post Code: ' + att.field_1 + '</h4>')
+                        .openPopup();
+                }
+                function processBaglemarker(json, lyr) {
+                    var att = json.properties;
+                    lyr
+                        .bindTooltip('<h4>Post Code: ' + att.field_1 + '</h4>')
+                        .openPopup();
+                }
+
+                function filterEagle(json) {
+                    var att = json.properties;
+                    var optFilter = $('input[name=fltEagle]:checked').val();
+                    if (optFilter == 'ALL') {
+                        return true;
+                    } else {
+                        return att.status == optFilter;
+                    }
+                }
+
+                function refreshEagles() {
+                    $.ajax({
+                        url: 'load_allpostcodes.php',
+                        data: { tbl:'crewecw', flds:'id, field_1, field_2, field_3, field_4, field_5' },
+                        type: 'GET',
+                        success: function (response) {
+                            arEagleIDs = [];
+                            jsnEagles = JSON.parse(response);
+                            if (lyrEagleNests) {
+                                ctlLayers.removeLayer(lyrEagleNests);
+                                ctlLayers.removeLayer(lyrMarkerCluster);
+                                lyrEagleNests.remove();
+                            }
+                            lyrEagleNests = L.geoJSON(jsnEagles, {
+                                onEachFeature: processPcodemarker,
+                                pointToLayer: returnEagleMarker,
+                                filter: filterEagle,
+                            });
+
+                            arEagleIDs.sort(function (a, b) {
+                                return a - b;
+                            });
+                            $('#txtFindEagle').autocomplete({
+                                source: arEagleIDs,
+                            });
+                            lyrMarkerCluster = L.markerClusterGroup();
+                            lyrMarkerCluster.clearLayers();
+                            lyrMarkerCluster.addLayer(lyrEagleNests);
+                            lyrMarkerCluster.addTo(mymap);
+                            ctlLayers.addOverlay(lyrMarkerCluster, 'Post codes');
+                        },
+                        error: function (xhr, status, error) {
+                            alert('ERROR: ' + error);
+                        },
+                    });
+                }
 
             //  function refreshPagles(){
             //     $.ajax({url:'load_allpostcodes.php',
