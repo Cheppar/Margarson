@@ -123,6 +123,20 @@ echo "";
             var lyrBagleNests;
             var lyrRaptorNests;
             var lyrClientLines;
+            var lyrUkboundary;
+            var lyrScotland;
+            var lyrWales;
+            var lyrEngland;
+            var lyrNorthireland;
+            var lyrNortheast;
+            var lyrNorthwest;
+            var lyrLondon;
+            var lyrSouthwest;
+            var lyrEasteng;
+            var lyrSoutheast;
+            var lyrEastmid;
+            var lyrWestmid;
+            var lyrYorkhumber;
             var lyrClientLinesBuffer;
             var lyrBUOWL;
             var lyrBUOWLbuffer;
@@ -183,6 +197,7 @@ echo "";
                 fgpDrawnItems.addTo(mymap);
 
 //******* loading our database **********
+               refreshUk();
                refreshWales();
                refreshLinears();
                refreshNortheast();
@@ -201,10 +216,7 @@ echo "";
 
                 objBasemaps = {
                     "Open Street Maps": lyrOSM,
-                    "Topo Map":lyrTopo,
                     "Imagery":lyrImagery,
-                    "Outdoors":lyrOutdoors,
-                    "Watercolor":lyrWatercolor
                 };
 
                 objOverlays = {
@@ -213,15 +225,85 @@ echo "";
 
                 ctlLayers = L.control.layers(objBasemaps, objOverlays).addTo(mymap);
 
+                 mymap.on('zoomend', function(e) {
+                    if (mymap.getZoom() <= 5){
+                         mymap.addLayer(lyrUkboundary);
+                         mymap.removeLayer(lyrClientLines);
+                         mymap.removeLayer(lyrScotland);
+                         mymap.removeLayer(lyrWales);
+                         mymap.removeLayer(lyrNorthireland);
+                         mymap.removeLayer(lyrNortheast);
+                         mymap.removeLayer(lyrNorthwest);
+                         mymap.removeLayer(lyrLondon );
+                         mymap.removeLayer(lyrSouthwest);
+                         mymap.removeLayer(lyrSoutheast);
+                         mymap.removeLayer(lyrEastmid);
+                         mymap.removeLayer(lyrWestmid);
+                         mymap.removeLayer(lyrYorkhumber);
 
-            // ************ Client Linears **********
+                    }else{
 
 
+                    }
+                     if (mymap.getZoom() >= 6){
+                        // mymap.addLayer(lyrClientLines);
+                        mymap.addLayer(lyrScotland);
+                        mymap.addLayer(lyrWales);
+                        mymap.addLayer( lyrNorthireland);
+                        mymap.addLayer(lyrNortheast);
+                        mymap.addLayer(lyrNorthwest );
+                        mymap.addLayer( lyrLondon);
+                        mymap.addLayer(lyrSouthwest);
+                        mymap.addLayer(lyrSoutheast);
+                        mymap.addLayer(lyrEastmid);
+                        mymap.addLayer(lyrWestmid);
+                        mymap.addLayer(lyrYorkhumber);
+                        mymap.removeLayer(lyrUkboundary);
+                    }else{
 
+                    }
+
+                });
+
+        //************* my layers ***********//
+                 function processClientBLinears(json, lyr) {
+                var att = json.properties;
+             lyr.bindPopup("<h4>Boundary: "+att.name_engli+"</h4> ").addTo(mymap);
+             arProjectIDs.push(att.name_engli.toString());
+
+            }
+
+             function refreshUk() {
+                $.ajax({url:'load_allpostcodes.php',
+                    data: {tbl:'ukboundary', flds:"name_engli"},
+                    type: 'GET',
+                    success: function(response){
+                        arProjectIDs=[];
+                        jsnLbinears = JSON.parse(response);
+                        if (lyrUkboundary) {
+
+                            lyrUkboundary.remove();
+                        }
+
+                        lyrUkboundary = L.geoJSON(jsnLbinears, {color:'black', dashArray:"2,2", fillOpacity:0.3 , opacity:0.4, onEachFeature:processClientBLinears}).addTo(mymap);
+                        ctlLayers.addOverlay(lyrUkboundary, "UK Boundary");
+                        arProjectIDs.sort(function(a,b){return a-b});
+                        $("#txtFindEagle").autocomplete({
+                            source:arProjectIDs
+                        });
+
+                    },
+                    error: function(xhr, status, error){
+                       alert("ERROR: "+error);
+                    }
+                });
+            }
+
+       // ************ Client Linears **********
 
             function processClientLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4> District Postcode: "+att.eer13nm+"<br> <a href='aberdeen.php'>Aberdeen AB</a> <br> <a href='edinburgh.php'>Edinburgh EH</a> <br> <a href='glasgow.php'>Glasgow  G</a>  <br> <a href='inverness.php'>Inverness IV</a> <br> <a href='dundee.php'>Dundee DD</a> <br> <a href='falkirk.php'>Falkirk FK</a> <br> <a href='dumfriesandgalloway.php'>Dumfries & Galloway DG</a> ").addTo(mymap);
+             lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4> District Postcode: "+att.eer13nm+"<br> <a href='aberdeen.php'>Aberdeen AB</a> <br> <a href='edinburgh.php'>Edinburgh EH</a> <br> <a href='glasgow.php'>Glasgow  G</a>  <br> <a href='inverness.php'>Inverness IV</a> <br> <a href='dundee.php'>Dundee DD</a> <br> <a href='falkirk.php'>Falkirk FK</a> <br> <a href='dumfriesandgalloway.php'>Dumfries & Galloway DG</a> ");
              arProjectIDs.push(att.eer13nm.toString());
 
             }
@@ -233,14 +315,12 @@ echo "";
                     success: function(response){
                         arProjectIDs=[];
                         jsnLinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            // lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
+                        if (lyrScotland) {
+                            ctlLayers.removeLayer(lyrScotland);
                         }
                         lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLinears, {color:'black', dashArray:"5,5", fillOpacity:0.3 , opacity:0.4, onEachFeature:processClientLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Boundary");
+                        lyrScotland = L.geoJSON(jsnLinears, {color:'black', dashArray:"5,5", fillOpacity:0.3 , opacity:0.4, onEachFeature:processClientLinears});
+                        ctlLayers.addOverlay(lyrScotland, "Boundary");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -255,7 +335,7 @@ echo "";
             // *********  Wales Boundary Functions *****************
             function processWalesLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4> District Postcode: "+att.eer13nm+"<br> <a href='cardiff.php'>Cardiff CF</a> <br> ").addTo(mymap);
+             lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4><br> <a href='cardiff.php'>Cardiff CF</a> <br> ");
              arProjectIDs.push(att.eer13nm.toString());
 
             }
@@ -267,14 +347,14 @@ echo "";
                     success: function(response){
                         arProjectIDs=[];
                         jsnWlinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
+                        if (lyrWales) {
+                            ctlLayers.removeLayer(lyrWales);
                             // lyrClientLines.remove();
                             lyrClientLinesBuffer.remove();
                         }
                         lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnWlinears, {color:'blue', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processWalesLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Wales Boundary");
+                        lyrWales = L.geoJSON(jsnWlinears, {color:'blue', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processWalesLinears});
+                        ctlLayers.addOverlay(lyrWales, "Wales Boundary");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -286,46 +366,43 @@ echo "";
                     }
                 });
             }
-            // *********  End of Wales Boundary Functions *****************
 
-            //****************** Great Britain ********************//
-            function processGbLinears(json, lyr) {
-                var att = json.properties;
-             lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4> Boundary: "+att.eer13nm+"<br> <a href='#'>Cardiff CF</a> <br> ").addTo(mymap);
-             arProjectIDs.push(att.eer13nm.toString());
 
-            }
+            // //****************** Great Britain ********************//
+            // function processGbLinears(json, lyr) {
+            //     var att = json.properties;
+            //  lyr.bindPopup("<h4>Boundary: "+att.eer13nm+"</h4> Boundary: "+att.eer13nm+"<br> <a href='#'>Cardiff CF</a> <br> ");
+            //  arProjectIDs.push(att.eer13nm.toString());
 
-             function refreshGb() {
-                $.ajax({url:'load_allpostcodes.php',
-                    data: {tbl:'bou_england', flds:"id, ee13nm"},
-                    type: 'GET',
-                    success: function(response){
-                        arProjectIDs=[];
-                        jsnGblinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            // lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
-                        }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnGblinears, {color:'red', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processGbLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "England Boundary");
-                        arProjectIDs.sort(function(a,b){return a-b});
-                        $("#txtFindEagle").autocomplete({
-                            source:arProjectIDs
-                        });
+            // }
 
-                    },
-                    error: function(xhr, status, error){
-                       alert("ERROR: "+error);
-                    }
-                });
-            }
+            //  function refreshGb() {
+            //     $.ajax({url:'load_allpostcodes.php',
+            //         data: {tbl:'bou_england', flds:"id, ee13nm"},
+            //         type: 'GET',
+            //         success: function(response){
+            //             arProjectIDs=[];
+            //             jsnGblinears = JSON.parse(response);
+            //             if (lyrEngland) {
+            //                 ctlLayers.removeLayer(lyrEngland);
+            //             }
+            //             lyrEngland = L.geoJSON(jsnGblinears, {color:'red', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processGbLinears});
+            //             ctlLayers.addOverlay(lyrEngland, "England Boundary");
+            //             arProjectIDs.sort(function(a,b){return a-b});
+            //             $("#txtFindEagle").autocomplete({
+            //                 source:arProjectIDs
+            //             });
+
+            //         },
+            //         error: function(xhr, status, error){
+            //            alert("ERROR: "+error);
+            //         }
+            //     });
+            // }
             //****************** End of Great Britain ********************//
             function processNiLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Boundary: "+att.pc_name+"</h4> District Postcode: "+att.pc_name+"<br> <a href='#'>Cardiff CF</a> <br> ").addTo(mymap);
+             lyr.bindPopup("<h4>Boundary: "+att.pc_name+"</h4> District Postcode: "+att.pc_name+"<br> ");
              arProjectIDs.push(att.pc_name.toString());
 
             }
@@ -337,14 +414,12 @@ echo "";
                     success: function(response){
                         arProjectIDs=[];
                         jsnNilinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            // lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
+                        if (lyrNorthireland) {
+                            ctlLayers.removeLayer(lyrNorthireland);
+
                         }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnNilinears, {color:'green', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processNiLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+                        lyrNorthireland = L.geoJSON(jsnNilinears, {color:'green', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processNiLinears});
+                        ctlLayers.addOverlay(lyrNorthireland, "Northern Ireland");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -358,9 +433,9 @@ echo "";
             }
 
             //****************** Start North East ********************//
-function processNeLinears(json, lyr) {
+            function processNeLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>District: "+att.name+"</h4><br> <a href='durham.php'>Durham DH</a><br><a href='darlington.php'>Darlington DL</a> ").addTo(mymap);
+             lyr.bindPopup("<h4>District: "+att.name+"</h4><br> <a href='durham.php'>Durham DH</a><br><a href='darlington.php'>Darlington DL</a> ");
              arProjectIDs.push(att.id.toString());
             }
 
@@ -371,13 +446,13 @@ function processNeLinears(json, lyr) {
                     success: function(response){
                         arProjectIDs=[];
                         jsnNelinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            lyrClientLinesBuffer.remove();
+                        if (lyrNortheast) {
+                            ctlLayers.removeLayer(lyrNortheast);
+
                         }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnNelinears, {color:'red', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processNeLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Northern East Boundary");
+
+                        lyrNortheast = L.geoJSON(jsnNelinears, {color:'red', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processNeLinears});
+                        ctlLayers.addOverlay(lyrNortheast, "Northern East Boundary");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -393,7 +468,7 @@ function processNeLinears(json, lyr) {
 
             function processNwLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>District: "+att.name+"</h4><a href='bolton.php'>Bolton BL *</a><br><a href='blackburn.php'>Blackburn BB</a><br><a href='chester.php'>Chester CH</a><br><a href='carlisle.php'>Carlisle CA</a><br><a href='crewe.php'>Crewe CW *</a><br><a href='blackpool.php'>Blackpool FY</a><br><a href='chester.php'>Blackpool FY</a>").addTo(mymap);
+             lyr.bindPopup("<h4>District: "+att.name+"</h4><a href='bolton.php'>Bolton BL *</a><br><a href='blackburn.php'>Blackburn BB</a><br><a href='chester.php'>Chester CH</a><br><a href='carlisle.php'>Carlisle CA</a><br><a href='crewe.php'>Crewe CW *</a><br><a href='blackpool.php'>Blackpool FY</a><br><a href='chester.php'>Blackpool FY</a>");
              arProjectIDs.push(att.id.toString());
             }
 
@@ -404,13 +479,12 @@ function processNeLinears(json, lyr) {
                     success: function(response){
                         arProjectIDs=[];
                         jsnNwlinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            lyrClientLinesBuffer.remove();
+                        if (lyrNorthwest) {
+                            ctlLayers.removeLayer(lyrNorthwest);
                         }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnNwlinears, {color:'deeppink', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processNwLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Northern East Boundary");
+
+                        lyrNorthwest = L.geoJSON(jsnNwlinears, {color:'deeppink', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processNwLinears});
+                        ctlLayers.addOverlay(lyrNorthwest, "North West Boundary");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -426,7 +500,7 @@ function processNeLinears(json, lyr) {
             //*************** London Boundary ********************//
             function processLonLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='londonEC.php'>London EC</a><br><a href='londonE.php'>London E</a><br><a href='ilford.php'>Ilford IG</a>").addTo(mymap);
+             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='londonEC.php'>London EC</a><br><a href='londonE.php'>London E</a><br><a href='ilford.php'>Ilford IG</a>");
              arProjectIDs.push(att.id.toString());
             }
 
@@ -437,13 +511,13 @@ function processNeLinears(json, lyr) {
                     success: function(response){
                         arProjectIDs=[];
                         jsnLonlinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            lyrClientLinesBuffer.remove();
+                        if (lyrLondon) {
+                            ctlLayers.removeLayer(lyrLondon);
+
                         }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnLonlinears, {color:'black', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processLonLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "London Boundary");
+
+                        lyrLondon = L.geoJSON(jsnLonlinears, {color:'black', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processLonLinears});
+                        ctlLayers.addOverlay(lyrLondon, "London Boundary");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -458,7 +532,7 @@ function processNeLinears(json, lyr) {
              //****************** Eastern England ********************//
             function processEasternLinears(json, lyr) {
                 var att = json.properties;
-             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='albans.php'>Albans AL</a><br><a href='cambridge.php'>Cambridge CB</a><br><a href='chelmsford.php'>Chelmsford CM</a><br><a href='colchester.php'>Colchester CO</a><br><a href='enfield.php'>Enfield EN</a><br><a href='harrow.php'>Harrow HA</a><br><a href='hempstead.php'>Hemel & Hempstead HP</a><a href='ipswich.php'>Ipswich IP</a>").addTo(mymap);
+             lyr.bindPopup("<h4>Region: "+att.name+"</h4><a href='albans.php'>Albans AL</a><br><a href='cambridge.php'>Cambridge CB</a><br><a href='chelmsford.php'>Chelmsford CM</a><br><a href='colchester.php'>Colchester CO</a><br><a href='enfield.php'>Enfield EN</a><br><a href='harrow.php'>Harrow HA</a><br><a href='hempstead.php'>Hemel & Hempstead HP</a><a href='ipswich.php'>Ipswich IP</a>");
              arProjectIDs.push(att.id.toString());
             }
 
@@ -469,13 +543,12 @@ function processNeLinears(json, lyr) {
                     success: function(response){
                         arProjectIDs=[];
                         jsnEastlinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
+                        if (lyrEasteng) {
+                            ctlLayers.removeLayer(lyrEasteng);
                             lyrClientLinesBuffer.remove();
                         }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnEastlinears, {color:'blue', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processEasternLinears}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "London Boundary");
+                        lyrEasteng = L.geoJSON(jsnEastlinears, {color:'blue', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processEasternLinears});
+                        ctlLayers.addOverlay(lyrEasteng, "East England");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -492,7 +565,7 @@ function processNeLinears(json, lyr) {
             //****************** Start Yorkshire England ********************//
             function processYorkshireBoundary(json, lyr) {
                     var att = json.properties;
-                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bradford.php'>Bradford BD</a><br><a href='darlington.php'>Darlington DL</a> <br> <a href='huddersfield.php'>Huddersfield HD</a> <br> <a href='harrogate.php'>Harrogate HG</a> <br> <a href='hull.php'>HULL HU *</a> <br><a href='halifax.php'>Halifax HX</a> <br> ").addTo(mymap);
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bradford.php'>Bradford BD</a><br><a href='darlington.php'>Darlington DL</a> <br> <a href='huddersfield.php'>Huddersfield HD</a> <br> <a href='harrogate.php'>Harrogate HG</a> <br> <a href='hull.php'>HULL HU *</a> <br><a href='halifax.php'>Halifax HX</a> <br> ");
                  arProjectIDs.push(att.name.toString());
 
                 }
@@ -504,14 +577,13 @@ function processNeLinears(json, lyr) {
                     success: function(response){
                         arProjectIDs=[];
                         jsnYorkshirelinears = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            // lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
+                        if (lyrYorkhumber) {
+                            ctlLayers.removeLayer(lyrYorkhumber);
+
                         }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnYorkshirelinears, {color:'green', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processYorkshireBoundary}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+
+                        lyrYorkhumber = L.geoJSON(jsnYorkshirelinears, {color:'green', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processYorkshireBoundary});
+                        ctlLayers.addOverlay(lyrYorkhumber, "Yorkshire & Humber");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -529,7 +601,7 @@ function processNeLinears(json, lyr) {
 
               function processWmidBoundary(json, lyr) {
                     var att = json.properties;
-                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='birmingham.php'>Birmingham B</a><br><a href='coventry.php'>Coventry CV</a><br><a href='dudley.php'>Dudley DY</a><br><a href='hereford.php'>Hereford HE</a><br> ").addTo(mymap);
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='birmingham.php'>Birmingham B</a><br><a href='coventry.php'>Coventry CV</a><br><a href='dudley.php'>Dudley DY</a><br><a href='hereford.php'>Hereford HE</a><br> ");
                  arProjectIDs.push(att.id.toString());
 
                 }
@@ -541,14 +613,13 @@ function processNeLinears(json, lyr) {
                     success: function(response){
                         arProjectIDs=[];
                         jsnSw = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            // lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
+                        if (lyrWestmid) {
+                            ctlLayers.removeLayer(lyrWestmid);
+
                         }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnSw, {color:'orange', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processWmidBoundary}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+
+                        lyrWestmid = L.geoJSON(jsnSw, {color:'orange', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processWmidBoundary});
+                        ctlLayers.addOverlay(lyrWestmid, "West Midlands");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -564,7 +635,7 @@ function processNeLinears(json, lyr) {
 
             function processEmidBoundary(json, lyr) {
                     var att = json.properties;
-                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='birmingham.php'>Birmingham B</a><br><a href='coventry.php'>Coventry CV</a><br><a href='dudley.php'>Dudley DY</a><br><a href='hereford.php'>Hereford HE</a><br> ").addTo(mymap);
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='birmingham.php'>Birmingham B</a><br><a href='coventry.php'>Coventry CV</a><br><a href='dudley.php'>Dudley DY</a><br><a href='hereford.php'>Hereford HE</a><br> ");
                  arProjectIDs.push(att.id.toString());
 
                 }
@@ -576,14 +647,13 @@ function processNeLinears(json, lyr) {
                     success: function(response){
                         arProjectIDs=[];
                         jsnEm = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            // lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
+                        if (lyrEastmid) {
+                            ctlLayers.removeLayer(lyrEastmid);
+
                         }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnEm, {color:'grey', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processEmidBoundary}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+
+                        lyrEastmid = L.geoJSON(jsnEm, {color:'grey', dashArray:"5,5", fillOpacity:0.4 , opacity:0.4, onEachFeature:processEmidBoundary});
+                        ctlLayers.addOverlay(lyrEastmid, "East Midlands");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -598,7 +668,7 @@ function processNeLinears(json, lyr) {
             //  ***********  South East Boundary  *********
               function processSouthestBoundary(json, lyr) {
                     var att = json.properties;
-                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='brighton.php'>Brighton BN</a><br><a href='bromley.php'>Bromley BR</a><br><a href='croydon.php'>Croydon CR</a><br><a href='canterbury.php'>Canterbury CT</a><br><a href='dartford.php'>Dartford DA *</a><br><a href='guildford.php'>Guildford GU</a><br><a href='hempstead.php'>Hempstead HP</a> ").addTo(mymap);
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='brighton.php'>Brighton BN</a><br><a href='bromley.php'>Bromley BR</a><br><a href='croydon.php'>Croydon CR</a><br><a href='canterbury.php'>Canterbury CT</a><br><a href='dartford.php'>Dartford DA *</a><br><a href='guildford.php'>Guildford GU</a><br><a href='hempstead.php'>Hempstead HP</a> ");
                  arProjectIDs.push(att.id.toString());
 
                 }
@@ -610,14 +680,11 @@ function processNeLinears(json, lyr) {
                     success: function(response){
                         arProjectIDs=[];
                         jsnSe = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            // lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
+                        if (lyrSoutheast) {
+                            ctlLayers.removeLayer(lyrSoutheast);
                         }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON(jsnSe, {color:'red', dashArray:"5,5", fillOpacity:0.2 , opacity:0.4, onEachFeature:processSouthestBoundary}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+                        lyrSoutheast = L.geoJSON(jsnSe, {color:'red', dashArray:"5,5", fillOpacity:0.2 , opacity:0.4, onEachFeature:processSouthestBoundary});
+                        ctlLayers.addOverlay(lyrSoutheast, "South East England");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
@@ -632,7 +699,7 @@ function processNeLinears(json, lyr) {
 
              function processSouthwstBoundary(json, lyr) {
                     var att = json.properties;
-                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bath.php'>Bath BA</a><br><a href='Bournemouth.php'>Bournemouth BH</a><br><a href='bristol.php'>Bristol BS</a><br><a href='dorchester.php'>Dorchester DT*</a><br><a href='exeter.php'>Exeter EX</a><br><a href='gloucester.php'>Gloucester GL</a>").addTo(mymap);
+                 lyr.bindPopup("<h4>District: "+att.name+"</h4> <a href='bath.php'>Bath BA</a><br><a href='Bournemouth.php'>Bournemouth BH</a><br><a href='bristol.php'>Bristol BS</a><br><a href='dorchester.php'>Dorchester DT*</a><br><a href='exeter.php'>Exeter EX</a><br><a href='gloucester.php'>Gloucester GL</a>");
                  arProjectIDs.push(att.name.toString());
 
                 }
@@ -644,14 +711,12 @@ function processNeLinears(json, lyr) {
                     success: function(response){
                         arProjectIDs=[];
                         jsnSwest = JSON.parse(response);
-                        if (lyrClientLines) {
-                            ctlLayers.removeLayer(lyrClientLines);
-                            // lyrClientLines.remove();
-                            lyrClientLinesBuffer.remove();
+                        if (lyrSouthwest) {
+                            ctlLayers.removeLayer(lyrSouthwest);
+
                         }
-                        lyrClientLinesBuffer = L.featureGroup();
-                        lyrClientLines = L.geoJSON( jsnSwest, {color:'red', dashArray:"5,5", fillOpacity:0.2 , opacity:0.4, onEachFeature:processSouthwstBoundary}).addTo(mymap);
-                        ctlLayers.addOverlay(lyrClientLines, "Northern Ireland Boundary");
+                        lyrSouthwest = L.geoJSON( jsnSwest, {color:'red', dashArray:"5,5", fillOpacity:0.2 , opacity:0.4, onEachFeature:processSouthwstBoundary});
+                        ctlLayers.addOverlay(lyrSouthwest, "South West England");
                         arProjectIDs.sort(function(a,b){return a-b});
                         $("#txtFindEagle").autocomplete({
                             source:arProjectIDs
