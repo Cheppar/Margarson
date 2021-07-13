@@ -1,5 +1,8 @@
-# Margarson
-This project belongs to Oliver Margarson and entails the mapping of UK postcodes per area and district.
+# UK Post Codes
+This project is a template that maps all UK postcodes per area and district.
+Feel free to buy a mug of coffee. 
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate?hosted_button_id=BM6XEVPZ7B4RQ)
 
 ### Installation 
 Folders attached are 
