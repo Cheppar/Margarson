@@ -2,8 +2,6 @@
 This project is a template that maps all UK postcodes per area and district.
 Feel free to buy a mug of coffee. 
 
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate?hosted_button_id=BM6XEVPZ7B4RQ)
-
 ### Installation 
 Folders attached are 
 - postcodes folder that contains all files
@@ -66,6 +64,8 @@ On the left is a layer navigation pane. Click on the Imagery button to display s
 Display or remove the postcodes and boundary.
 #### NB The towns listed ends at Inverness IV postcode.
 
-If you would like a content management system, kindly feel free to reach out to me via Github.
+If you would like a content management system, kindly feel free to reach out to me via ejioforched@gmail.com.
+instagram.com/f_mxbe
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate?hosted_button_id=BM6XEVPZ7B4RQ)
 
 
