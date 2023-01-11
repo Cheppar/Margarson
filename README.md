@@ -54,7 +54,7 @@ OR
 localhost:8080/postcodes/content/index.html
 ```
 ## How to navigate 
-The index page has a boundary seprated into
+The index page has a boundary separated into
 - Scotland
 - England (regions).
 - Wales 
